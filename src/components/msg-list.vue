@@ -10,7 +10,7 @@
 						<span class="iconfont icon-left"></span>
 					</div>
 					<div class="point" v-if="item.is_check==0"></div>
-					<span class="date">{{item.write_date}}</span>
+					<span class="date">{{item.write_date_text}}</span>
 				</div>
 				<div class="right-ctrl">
 					<div class="setTop">置顶</div>
@@ -75,15 +75,13 @@ export default{
 	created(){
 		this.getRecord();
 	},
-	mounted(){
-		this.$nextTick(()=>{
-			if(!this.$isMobile){//自定义滚动条
-				this.bar = new ScrollBar(this.$refs.wrap,this.$refs.inner,this.$refs.scrollBar,1);
-				if(typeof this.bar.setBarHeight == 'function'){
-					window.addEventListener('resize',this.bar.setBarHeight);
-				}
+	updated(){
+		if(!this.$isMobile){//自定义滚动条
+			this.bar = new ScrollBar(this.$refs.wrap,this.$refs.inner,this.$refs.scrollBar,1);
+			if(typeof this.bar.setBarHeight == 'function'){
+				window.addEventListener('resize',this.bar.setBarHeight);
 			}
-		})
+		}
 	}
 }
 </script>

@@ -107,14 +107,12 @@ export default{
 		this.getGroupList();
 	},
 	mounted(){
-		this.$nextTick(()=>{
-			if(!this.$isMobile){//自定义滚动条
-				this.friendBar = new ScrollBar(this.$refs.wrap,this.$refs.friendInner,this.$refs.friendScrollBar,40);
-				if(typeof this.friendBar.setBarHeight == 'function'){
-					window.addEventListener('resize',this.friendBar.setBarHeight);
-				}
+		if(!this.$isMobile){//自定义滚动条
+			this.friendBar = new ScrollBar(this.$refs.wrap,this.$refs.friendInner,this.$refs.friendScrollBar,40);
+			if(typeof this.friendBar.setBarHeight == 'function'){
+				window.addEventListener('resize',this.friendBar.setBarHeight);
 			}
-		})
+		}
 	}
 }
 </script>

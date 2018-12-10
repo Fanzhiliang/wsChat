@@ -21,7 +21,8 @@ export default{
 			state.ws.send(JSON.stringify(data));
 		}
 	},
-	setRecordList(state,data){
+	setRecordList(state,data){//对数据进行排序
+		data.sort(function(a,b){return b.write_date - a.write_date;});
 		Vue.set(state,'recordList',data);
 	},
 	setFriendList(state,data){
@@ -29,5 +30,14 @@ export default{
 	},
 	setGroupList(state,data){
 		Vue.set(state,'groupList',data);
+	},
+	setDynamicToggle(state,{index,data}){
+		Vue.set(state.dynamicList[index],'isToggle',data);
+	},
+	clearDynamicList(state,data){
+		Vue.set(state,'dynamicList',[]);
+	},
+	setDynamicList(state,data){
+		Vue.set(state,'dynamicList',state.dynamicList.concat(data));
 	}
 }

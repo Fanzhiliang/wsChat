@@ -31,5 +31,22 @@ export default{
 	},
 	setGroupList({commit},data){
 		commit('setGroupList',data);
+	},
+	setDynamicToggle({commit},obj){
+		commit('setDynamicToggle',obj);
+	},
+	clearDynamicList({commit}){
+		commit('clearDynamicList');
+	},
+	setDynamicList({commit},data){
+		commit('setDynamicList',data);
+		Vue.nextTick(function(){
+			Array.prototype.forEach.call(document.querySelectorAll(".dynamic-list .text"),function(item,i){
+				if(item.clientHeight >= 108){
+					document.querySelectorAll(".dynamic-list .toggle")[i].style.display = 'inline';
+					commit('setDynamicToggle',{index: i,data: false});
+				}
+			})
+		})
 	}
 }

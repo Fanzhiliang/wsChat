@@ -30,7 +30,8 @@ export default {
 			send: 'data/send',
 			setRecordList: 'data/setRecordList',
 			setFriendList: 'data/setFriendList',
-			setGroupList: 'data/setGroupList'
+			setGroupList: 'data/setGroupList',
+			setDynamicList: 'data/setDynamicList'
 		}),
 		checkLogin(){
 	  		if(this.$route.path == '/'){//已经在登录或者注册页面时不用检查
@@ -82,6 +83,9 @@ export default {
 							break;
 						case 'getGroupList_success':
 							this.setGroupList(data.list);
+							break;
+						case 'getDynamicList_success':
+							this.setDynamicList(data.list);
 							break;
 
 						case 'no_match'://服务端没有匹配到type字段

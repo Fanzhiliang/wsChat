@@ -7,4 +7,5 @@ export default{
 	recordList: [],//消息列表
 	friendList: [],//好友列表
 	groupList: [],//群聊列表
+	dynamicList: [],//动态列表
 }
