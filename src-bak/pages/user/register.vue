@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import {mapState,mapActions} from 'vuex'
+import {mapActions} from 'vuex'
 import {getCode} from '@/api/api.js'
 export default{
 	data(){
@@ -51,19 +51,13 @@ export default{
 		}
 	},
 	computed:{
-		...mapState({
-			typeKeys:state=>state.data.typeKeys
-		}),
 		text(){
 			return this.isGetCode?this.time+'s':'获取验证码';
 		}
 	},
 	methods:{
 		...mapActions({
-			send: 'data/send',
-			addTypeKeys: 'data/addTypeKeys',
-			setUser: 'data/setUser',
-			setShowBody: 'view/setShowBody'
+			send: 'data/send'
 		}),
 		checkEmail(){
 			if(!this.obj.email){
@@ -115,15 +109,6 @@ export default{
 			if(!this.obj.code){
 				this.$Tip.showTip('验证码不能为空',{time:2});
 				return;
-			}
-			if(typeof this.typeKeys['register_success'] != 'function'){
-				this.addTypeKeys({
-					'register_success': (data)=>{
-						this.setUser(data.list[0]);
-						this.$router.push('/');
-						this.setShowBody('userInfo');
-					}
-				})
 			}
 			this.send({
 				type: 'register',

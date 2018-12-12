@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import {mapState,mapActions} from 'vuex'
+import {mapActions} from 'vuex'
 export default{
 	data(){
 		return{
@@ -34,26 +34,11 @@ export default{
 			}
 		}
 	},
-	computed:{
-		...mapState({
-			typeKeys:state=>state.data.typeKeys
-		})
-	},
 	methods:{
 		...mapActions({
-			send: 'data/send',
-			addTypeKeys: 'data/addTypeKeys',
-			setUser: 'data/setUser'
+			send: 'data/send'
 		}),
 		submit(){
-			if(typeof this.typeKeys['login_success'] != 'function'){
-				this.addTypeKeys({
-					'login_success': (data)=>{
-						this.setUser(data.list[0]);
-						this.$router.push('/');
-					}
-				})
-			}
 			this.$set(this.obj,'user_account',this.obj.key);
 			this.$set(this.obj,'email',this.obj.key);
 			this.send({

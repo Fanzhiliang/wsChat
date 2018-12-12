@@ -1,0 +1,97 @@
+.panel-wrap{
+	height: 100%;
+	overflow-y: auto;
+	padding-bottom: 20px;
+}
+.panel-inner{
+	min-height: 100%;
+}
+.big-title{
+	height: 110px;
+	line-height: 110px;
+	text-align: center;
+	font-size: 36px;
+	font-family: '微软雅黑','Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+.small-title{
+	text-align: center;
+	font-size: 22px;
+	height: 50px;
+	line-height: 50px;
+}
+.tip{
+	text-align: center;
+	font-size: 16px;
+	height: 30px;
+	line-height: 30px;
+	text-indent: 1em;
+}
+.tip a{
+	color: #3481cf;
+}
+.panel{
+	width: 270px;
+	margin: 0 auto;
+	padding-bottom: 20px;
+}
+.panel-main{
+	margin-top: 20px;
+}
+.input-row{
+	height: 40px;
+	line-height: 40px;
+	margin-bottom: 20px;
+	position: relative;
+	box-sizing: border-box;
+	border: 1px solid #dddddd;
+	border-radius: 3px;
+}
+.input-row .iconfont{
+	position: absolute;
+	color: #dddddd;
+	right: 10px;
+	top: 0;
+	cursor: pointer;
+}
+.but-row{
+	padding-right: 0;
+	border: 0;
+	font-size: 0;
+}
+input{
+	width: 100%;
+	padding-left: 10px;
+	padding-right: 35px;
+	display: inline-block;
+	border: 0;
+	box-sizing: border-box;
+	font-size: 16px;
+}
+input.small{
+	height: 40px;
+	line-height: 40px;
+	padding-right: 10px;
+	border: 1px solid #dddddd;
+	border-radius: 3px;
+	width: 160px;
+	margin-right: 4px;
+	vertical-align: top;
+}
+button{
+	height: 40px;
+	border: 0;
+	color: #fff;
+	border-radius: 3px;
+	font-size: 16px;
+	background-color: #337ab7;
+	cursor: pointer;
+}
+button.big{
+	width: 270px;
+}
+button.small{
+	background-color: #5bc0de;
+	width: 105px;
+	display: inline-block;
+	vertical-align: top;
+}

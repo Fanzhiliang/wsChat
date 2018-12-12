@@ -11,9 +11,8 @@ export default{
 	setWs({commit},data){
 		commit('setWs',data);
 	},
-	addTypeKeys({commit},data){
-		console.log(data)
-		commit('addTypeKeys',data);
+	setTypeKeys({commit},data){
+		commit('setTypeKeys',data);
 	},
 	send({commit},data){
 		commit('send',data);

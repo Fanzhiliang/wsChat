@@ -17,7 +17,6 @@ export default {
 	},
 	computed:{
 		...mapState({
-			typeKeys:state=>state.data.typeKeys,
 			user:state=>state.data.user,
 			loginKey:state=>state.data.loginKey,
 			dynamicIndex:state=>state.data.dynamicIndex,
@@ -69,13 +68,16 @@ export default {
 				let data = JSON.parse(e.data);
 				console.log(data);
 				if(data.err_code == 0){
-					for(let key in this.typeKeys){
-						if(data.type == key && typeof this.typeKeys[key] == 'function'){
-							this.typeKeys[key](data);
-						}
-					}
-
 					switch (data.type) {
+						case 'login_success'://登录成功
+							this.setUser(data.list[0]);
+							this.$router.push('/');
+							break;
+						case 'register_success'://注册成功
+							this.setUser(data.list[0]);
+							this.$router.push('/');
+							this.setShowBody('userInfo');
+							break;
 						case 'getUserByLoginKey_success'://根据loginKey获取用户信息成功
 							this.setUser(data.list[0]);
 							break;

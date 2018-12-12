@@ -17,9 +17,8 @@ export default{
 	setWs(state,data){
 		Vue.set(state,'ws',data);
 	},
-	addTypeKeys(state,data){
-		// Vue.set(state,'typeKeys',data);
-		Object.assign(state.typeKeys,data);
+	setTypeKeys(state,data){
+		Vue.set(state,'typeKeys',data);
 	},
 	send(state,data){
 		if(typeof state.ws.send == 'function'){
