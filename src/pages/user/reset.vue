@@ -3,11 +3,11 @@
 		<div class="panel-inner">
 			<h1 class="big-title">wsChat</h1>
 			<div class="panel">
-				<h3 class="small-title">账号注册</h3>
-				<p class="tip center">已经有账号了，可以<router-link to="login">登录</router-link>。</p>
+				<h3 class="small-title">修改密码</h3>
+				<p class="tip center">想起密码了，可以<router-link to="login">登录</router-link>。</p>
 				<div class="panel-main">
 					<div class="input-row">
-						<input type="text" placeholder="邮箱" autocomplete="off" v-model="obj.email">
+						<input type="text" placeholder="绑定的邮箱" autocomplete="off" v-model="obj.email">
 						<span class="iconfont icon-offline" v-if="obj.email!=''" @click="obj.email=''"></span>
 					</div>
 
@@ -16,7 +16,7 @@
 						<button class="small" @click="getCode">{{text}}</button>
 					</div>
 					<div class="input-row">
-						<input type="password" placeholder="密码" autocomplete="off" v-model="obj.password">
+						<input type="password" placeholder="新的密码" autocomplete="off" v-model="obj.password">
 						<span class="iconfont icon-offline" v-if="obj.password!=''" @click="obj.password=''"></span>
 					</div>
 					<div class="input-row">
@@ -24,7 +24,7 @@
 						<span class="iconfont icon-offline" v-if="obj.password2!=''" @click="obj.password2=''"></span>
 					</div>
 					<div class="but-row">
-						<button class="big" @click="submit">注册</button>
+						<button class="big" @click="submit">修改</button>
 					</div>
 				</div>
 			</div>
@@ -83,7 +83,7 @@ export default{
 	        this.isLoading = true;
 			let err_msg = await getCode({
 				email: this.obj.email,
-				type: 'register'
+				type: 'reset'
 			});
 			this.isLoading = false;
 			if(err_msg){//有错误信息
@@ -116,9 +116,9 @@ export default{
 				this.$Tip.showTip('验证码不能为空',{time:2});
 				return;
 			}
-			if(typeof this.typeKeys['register_success'] != 'function'){
+			if(typeof this.typeKeys['reset_success'] != 'function'){
 				this.addTypeKeys({
-					'register_success': (data)=>{
+					'reset_success': (data)=>{
 						this.setUser(data.list[0]);
 						this.$router.push('/');
 						this.setShowBody('userInfo');
@@ -126,7 +126,7 @@ export default{
 				})
 			}
 			this.send({
-				type: 'register',
+				type: 'reset',
 				user: this.obj
 			});
 		}

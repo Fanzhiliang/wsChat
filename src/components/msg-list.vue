@@ -35,6 +35,7 @@ export default{
 	},
 	computed:{
 		...mapState({
+			typeKeys:state=>state.data.typeKeys,
 			loginKey:state=>state.data.loginKey,
 			recordList:state=>state.data.recordList
 		})
@@ -43,6 +44,7 @@ export default{
 		...mapActions({
 			setShowBody: 'view/setShowBody',
 			setRidebarLoading: 'view/setRidebarLoading',
+			addTypeKeys: 'data/addTypeKeys',
 			setRecordList: 'data/setRecordList',
 			send: 'data/send'
 		}),
@@ -66,6 +68,14 @@ export default{
 			})
 		},
 		getRecord(){
+			if(typeof this.typeKeys['getRecordList_success'] != 'function'){
+				this.addTypeKeys({
+					'getRecordList_success': (data)=>{
+						this.setRecordList(data.list);
+						this.setRidebarLoading(false);
+					}
+				})
+			}
 			this.setRidebarLoading(true);
 			this.send({
 				type: 'getRecordList',
@@ -73,6 +83,14 @@ export default{
 			})
 		},
 		sortRecord(item){
+			if(typeof this.typeKeys['sortRecord_success'] != 'function'){
+				this.addTypeKeys({
+					'sortRecord_success': (data)=>{
+						this.setRecordList([]);
+						this.getRecord();
+					}
+				})
+			}
 			this.send({
 				type: 'sortRecord',
 				record_id: item.record_id,

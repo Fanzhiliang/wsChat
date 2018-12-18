@@ -84,11 +84,13 @@ export default{
 	},
 	computed:{
 		...mapState({
+			typeKeys:state=>state.data.typeKeys,
 			isShowBody:state=>state.view.isShowBody,
 			isShowEditor:state=>state.view.isShowEditor,
 			bodyIs:state=>state.view.bodyIs,
 			sidebarLoading:state=>state.view.sidebarLoading,
 			loginKey:state=>state.data.loginKey,
+			user:state=>state.data.user,
 			dynamicIndex:state=>state.data.dynamicIndex,
 			dynamicList:state=>state.data.dynamicList
 		})
@@ -103,6 +105,9 @@ export default{
 	methods:{
 		...mapActions({
 			setShowBody: 'view/setShowBody',
+			setRidebarLoading: 'view/setRidebarLoading',
+			setShowEditor: 'view/setShowEditor',
+			addTypeKeys: 'data/addTypeKeys',
 			send: 'data/send'
 		}),
 		stopWrap(){//解决一开始添加图片或者输入文字会换行的问题
@@ -116,6 +121,7 @@ export default{
 			setTimeout(()=>{
 				let ps = document.querySelectorAll("#editor-m p");
 				this.isOverM = ps.length>=2;
+				// this.isOverM = ps[0].clientHeight>40;
 				document.querySelectorAll("#editor-m p img").forEach((item)=>{
 					item.style.width='18px';
 					item.style.height='18px';
@@ -125,6 +131,19 @@ export default{
 			}, 111);
 		},
 		publishMsg(){
+			if(typeof this.typeKeys['insertDynamicMsg_success'] != 'function'){
+				this.addTypeKeys({
+					'insertDynamicMsg_success': (data)=>{
+						this.dynamicList[this.dynamicIndex].discussList.push({
+							name: this.user.user_name,
+							content: this.editor.txt.html()
+						})
+						this.setShowEditor(false);
+						this.setRidebarLoading(false);
+					}
+				})
+			}
+			this.setRidebarLoading(true);
 			this.send({
 				type: 'insertDynamicMsg',
 				loginKey: this.loginKey,

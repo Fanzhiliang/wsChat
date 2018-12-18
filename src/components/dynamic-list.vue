@@ -19,7 +19,7 @@
 				<p v-if="item.address" class="address ellipsis" :title="item.address">{{item.address}}</p>
 				<p class="bottom">
 					<span class="date">{{item.write_date_text}}</span>
-					<a href="#" class="delete">删除</a>
+					<a href="#" class="delete" @click="delDynamic(item.dynamic_id)">删除</a>
 					<span class="iconfont icon-more" ref="more" @click.stop="clickMore(index)"></span>
 				</p>
 
@@ -42,8 +42,11 @@
 		</div>
 		<div class="dynamic-mask" v-if="isShowCtrl||isShowEditor"></div>
 		<div class="scrollBar" ref="bar"></div>
-		<div class="fixed-ctrl clearfix" ref="fixedCtrl" v-show="isShowCtrl" @mousedown.stop="">
-			<a href="#"><span class="iconfont icon-heart1"></span>赞</a>
+		<div class="fixed-ctrl clearfix" ref="fixedCtrl" v-show="isShowCtrl" @mousedown.stop="" v-if="">
+			<a href="#" @mousedown="setLikeDynamic" v-if="ctrlDynamic && !ctrlDynamic.hasMylike">
+				<span class="iconfont icon-heart1"></span>赞
+			</a>
+			<a href="#" @mousedown="setLikeDynamic" v-else></span>取消</a>
 			<a href="#" @mousedown="isShowCtrl=false;setShowEditor(true)">
 				<span class="iconfont icon-chatbubbleoutline"></span>评论
 			</a>
@@ -65,24 +68,36 @@ export default{
 	},
 	computed:{
 		...mapState({
+			typeKeys:state=>state.data.typeKeys,
 			isShowEditor:state=>state.view.isShowEditor,
 			loginKey:state=>state.data.loginKey,
-			dynamicList:state=>state.data.dynamicList
-		})
+			user:state=>state.data.user,
+			dynamicList:state=>state.data.dynamicList,
+			dynamicIndex:state=>state.data.dynamicIndex,
+		}),
+		ctrlDynamic(){
+			if(typeof this.dynamicList[this.dynamicIndex] != 'undefined'){
+				return this.dynamicList[this.dynamicIndex];
+			}else{
+				return false;
+			}
+		}
 	},
 	methods:{
 		...mapActions({
 			setShowEditor: 'view/setShowEditor',
 			setRidebarLoading: 'view/setRidebarLoading',
+			addTypeKeys: 'data/addTypeKeys',
 			send: 'data/send',
 			clearDynamicList: 'data/clearDynamicList',
 			setDynamicList: 'data/setDynamicList',
 			setDynamicToggle: 'data/setDynamicToggle',
-			setDynamicIndex: 'data/setDynamicIndex'
+			setDynamicIndex: 'data/setDynamicIndex',
+			setDynamicLike: 'data/setDynamicLike'
 		}),
 		toggleText(index,res){
 			this.setDynamicToggle({index,data: res});
-			document.querySelectorAll(".dynamic-list .text")[index].style.maxHeight = res?'initial':'';
+			document.querySelectorAll(".dynamic-list .text")[index].style.maxHeight = res?'initial':'108px';
 			if(typeof this.bar.setBarHeight == 'function'){
 				this.bar.setBarHeight();
 			}
@@ -96,12 +111,66 @@ export default{
 			this.setDynamicIndex(index);
 		},
 		getDynamicList(){
+			if(typeof this.typeKeys['getDynamicList_success'] != 'function'){
+				this.addTypeKeys({
+					'getDynamicList_success': (data)=>{
+						this.setDynamicList({
+							list: data.list,
+							user_id: this.user.user_id
+						});
+						this.setRidebarLoading(false);
+					}
+				})
+			}
 			this.setRidebarLoading(true);
 			this.send({
 				type: 'getDynamicList',
 				loginKey: this.loginKey,
 				pageNo: this.pageNo,
 				pageSize: this.pageSize
+			})
+		},
+		delDynamic(dynamicId){
+			this.$Tip.showTip('确定要删除吗？',{
+				sure:()=>{
+					if(typeof this.typeKeys['delDynamic_success'] != 'function'){
+						this.addTypeKeys({
+							'delDynamic_success': (data)=>{
+								this.setRidebarLoading(false);
+								this.clearDynamicList();
+								this.$nextTick(()=>{
+									this.getDynamicList();
+								});
+							}
+						})
+					}
+					this.setRidebarLoading(true);
+					this.send({
+						type: 'delDynamic',
+						loginKey: this.loginKey,
+						dynamic_id: dynamicId
+					})
+				}
+			})		
+		},
+		setLikeDynamic(){
+			if(typeof this.typeKeys['setLikeDynamic_success'] != 'function'){
+				this.addTypeKeys({
+					'setLikeDynamic_success': (data)=>{
+						this.setRidebarLoading(false);
+						this.isShowCtrl = false;
+						this.setDynamicLike({
+							index:this.dynamicIndex,
+							likes:data.list
+						})
+					}
+				})
+			}
+			this.setRidebarLoading(true);
+			this.send({
+				type: 'setLikeDynamic',
+				loginKey: this.loginKey,
+				dynamic_id: this.ctrlDynamic.dynamic_id
 			})
 		}
 	},
@@ -165,7 +234,7 @@ export default{
 		font-size: 14px;
 		line-height: 18px;
 		overflow: hidden;
-		max-height: 108px;
+		/* max-height: 108px; */
 	}
 	.toggle{
 		font-size: 14px;

@@ -19,25 +19,27 @@ export default {
 		...mapState({
 			typeKeys:state=>state.data.typeKeys,
 			user:state=>state.data.user,
-			loginKey:state=>state.data.loginKey,
-			dynamicIndex:state=>state.data.dynamicIndex,
-			dynamicList:state=>state.data.dynamicList
+			loginKey:state=>state.data.loginKey
 		})
 	},
 	methods:{
 		...mapActions({
-			setShowEditor: 'view/setShowEditor',
 			setShowBody: 'view/setShowBody',
 			setRidebarLoading: 'view/setRidebarLoading',
+			addTypeKeys: 'data/addTypeKeys',
 			setUser: 'data/setUser',
 			setWs: 'data/setWs',
-			send: 'data/send',
-			setRecordList: 'data/setRecordList',
-			setFriendList: 'data/setFriendList',
-			setGroupList: 'data/setGroupList',
-			setDynamicList: 'data/setDynamicList'
+			send: 'data/send'
 		}),
 		getUserByLoginKey(){
+			if(typeof this.typeKeys['getUserByLoginKey_success'] != 'function'){
+				this.addTypeKeys({
+					'getUserByLoginKey_success': (data)=>{
+						this.setUser(data.list[0]);
+						this.setRidebarLoading(false);
+					}
+				})
+			}
 			this.send({
 				type: 'getUserByLoginKey',
 				loginKey: this.loginKey
@@ -64,7 +66,7 @@ export default {
 	created(){
 		if('WebSocket' in window){
 			let ws = new WebSocket('ws://127.0.0.1:8086');
-			// ws = new WebSocket('ws://120.78.128.4:443');
+			//let ws = new WebSocket('ws://120.78.128.4:443');
 			ws.onmessage = (e)=>{
 				let data = JSON.parse(e.data);
 				console.log(data);
@@ -74,37 +76,7 @@ export default {
 							this.typeKeys[key](data);
 						}
 					}
-
-					switch (data.type) {
-						case 'getUserByLoginKey_success'://根据loginKey获取用户信息成功
-							this.setUser(data.list[0]);
-							break;
-						case 'getRecordList_success':
-							this.setRecordList(data.list);
-							break;
-						case 'getFriendList_success':
-							this.setFriendList(data.list);
-							break;
-						case 'getGroupList_success':
-							this.setGroupList(data.list);
-							break;
-						case 'getDynamicList_success':
-							this.setDynamicList(data.list);
-							break;
-						case 'sortRecord_success':
-							this.setRidebarLoading(true);
-							this.setRecordList([]);
-							this.send({type: 'getRecordList',loginKey: this.loginKey});
-							break;
-						case 'setStatus_success':
-							this.getUserByLoginKey();
-							break;
-						case 'insertDynamicMsg_success':
-							this.setShowEditor(false);
-
-							break;
-					}
-					this.setRidebarLoading(false);
+					//this.setRidebarLoading(false);
 				}else{
 					this.$Tip.showTip(data.err_msg,{time:2});
 					if(data.err_code == 1){//错误代码为1都是没登录时发生的

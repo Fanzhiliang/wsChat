@@ -39,6 +39,7 @@
 
 <script>
 import {getWindowWidth} from '@/assets/js/utils.js'
+import {mapState,mapActions} from 'vuex'
 import {upload,cutHead} from '@/api/api.js'
 export default{
 	props:['isShow','src','head'],
@@ -65,6 +66,9 @@ export default{
 		isShow(newValue){}
 	},
 	computed:{
+		...mapState({
+			user:state=>state.data.user
+		}),
 		bgStyle(){
 			return this.isInit?{
 				width: this.bgWidth+'px',height: this.bgHeight+'px'
@@ -218,14 +222,14 @@ export default{
 			}
 		},
 		async sure(){
-			let imageSrc = await upload(this.head.files[0]);
-			if(imageSrc){
+			let imageSrcs = await upload(this.head.files,this.user.user_id);
+			if(imageSrcs[0]){
 				let newSrc = await cutHead({
 					startX: this.selecterLeft/this.bgWidth,
 					endX: (this.selecterLeft+this.selecterWidth)/this.bgWidth,
 					startY: this.selecterTop/this.bgHeight,
 					endY: (this.selecterTop+this.selecterHeight)/this.bgHeight,
-					imageSrc: imageSrc
+					imageSrc: imageSrcs[0]
 				});
 				console.log(newSrc);//新头像地址
 			}

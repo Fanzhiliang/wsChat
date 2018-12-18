@@ -20,14 +20,23 @@
 	line-height: 50px;
 }
 .tip{
-	text-align: center;
+	text-align: left;
 	font-size: 16px;
 	height: 30px;
 	line-height: 30px;
-	text-indent: 1em;
+	overflow: hidden;
+	padding-left: 0.5em;
+}
+.tip.center{
+	text-align: center;
+	text-indent: 0.5em;
 }
 .tip a{
 	color: #3481cf;
+}
+.tip .reset{
+	float: right;
+	margin-right: 0.5em;
 }
 .panel{
 	width: 270px;

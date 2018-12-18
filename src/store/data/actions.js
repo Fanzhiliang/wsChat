@@ -12,7 +12,6 @@ export default{
 		commit('setWs',data);
 	},
 	addTypeKeys({commit},data){
-		console.log(data)
 		commit('addTypeKeys',data);
 	},
 	send({commit},data){
@@ -45,19 +44,24 @@ export default{
 	clearDynamicList({commit}){
 		commit('clearDynamicList');
 	},
-	setDynamicList({commit},data){
-		data.forEach((item)=>{
+	setDynamicList({commit},{list,user_id}){
+		list.forEach((item)=>{
 			item.img_srcs = JSON.parse(item.img_srcs);
+			item.hasMylike = item.likes.filter((item)=>{return item.user_id == user_id}).length>0;//我是否有点赞
 		})
-		commit('setDynamicList',data);
+		commit('setDynamicList',list);
 		Vue.nextTick(function(){
 			Array.prototype.forEach.call(document.querySelectorAll(".dynamic-list .text"),function(item,i){
-				if(item.clientHeight >= 108){
+				if(item.clientHeight > 108){
+					item.style.maxHeight = '108px';
 					document.querySelectorAll(".dynamic-list .toggle")[i].style.visibility = 'initial';
 					commit('setDynamicToggle',{index: i,data: false});
 				}
 			})
 		})
+	},
+	setDynamicLike({commit},data){
+		commit('setDynamicLike',data);
 	},
 	setDynamicIndex({commit},data){
 		commit('setDynamicIndex',data);

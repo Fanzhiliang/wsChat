@@ -34,6 +34,7 @@ export default{
 	},
 	computed:{
 		...mapState({
+			typeKeys:state=>state.data.typeKeys,
 			user:state=>state.data.user,
 			loginKey:state=>state.data.loginKey
 		})
@@ -42,10 +43,21 @@ export default{
 		...mapActions({
 			setShowBody: 'view/setShowBody',
 			setRidebarLoading: 'view/setRidebarLoading',
+			addTypeKeys: 'data/addTypeKeys',
 			send: 'data/send',
 			exitLogin: 'data/exitLogin'
 		}),
 		toggleStatus(status){
+			if(typeof this.typeKeys['setStatus_success'] != 'function'){
+				this.addTypeKeys({
+					'setStatus_success': (data)=>{
+						this.send({
+							type: 'getUserByLoginKey',
+							loginKey: this.loginKey
+						})
+					}
+				})
+			}
 			this.setRidebarLoading(true);
 			this.send({
 				type: 'setStatus',

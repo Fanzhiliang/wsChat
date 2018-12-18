@@ -9,5 +9,5 @@ export default{
 	friendList: [],//好友列表
 	groupList: [],//群聊列表
 	dynamicList: [],//动态列表
-	dynamicIndex: 0,//要操作的动态index
+	dynamicIndex: false,//要操作的动态index
 }

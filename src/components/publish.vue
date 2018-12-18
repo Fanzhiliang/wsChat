@@ -1,8 +1,8 @@
 <template>
 	<div class="publish">
 		<div class="title">
-			<span class="iconfont icon-left" @click="setShowBody(false)"></span>
-			<span class="pub">发表</span>
+			<span class="iconfont icon-left" @click="close"></span>
+			<span class="pub" @click="publish">发表</span>
 			<div id="toolbar-p"></div>
 		</div>
 		<div :class="['publish-inner',$isMobile?'mobile':'']">
@@ -28,9 +28,11 @@
 
 <script>
 import {mapState,mapActions} from 'vuex'
+import {upload,getIp} from '@/api/api.js'
 export default{
 	data(){
 		return{
+			pageSize: 10,//一页有10条动态
 			imageSrcs:(()=>{
 				let result = [];
 				for(let i=0;i<9;i++){
@@ -43,10 +45,26 @@ export default{
 			isShowInput: true
 		}
 	},
+	computed:{
+		...mapState({
+			typeKeys:state=>state.data.typeKeys,
+			loginKey:state=>state.data.loginKey,
+			user:state=>state.data.user
+		})
+	},
 	methods:{
 		...mapActions({
-			setShowBody: 'view/setShowBody'
+			setShowBody: 'view/setShowBody',
+			addTypeKeys: 'data/addTypeKeys',
+			send: 'data/send',
+			clearDynamicList: 'data/clearDynamicList',
+			setRidebarLoading: 'view/setRidebarLoading'
 		}),
+		close(){
+			if(typeof this.editor.txt.clear == 'function'){this.editor.txt.clear();}
+			this.isShowInput = true;
+			this.setShowBody(false);
+		},
 		startSelect(){
 			this.$refs.image[this.imageCount].click();
 		},
@@ -88,6 +106,42 @@ export default{
 					item.style.verticalAlign='middle';
 				})
 			}, 111);
+		},
+		async publish(){
+			let filesList = [];
+			for(let i in this.$refs.image){
+				if(this.$refs.image[i].files[0]){filesList.push(this.$refs.image[i].files[0]);}
+			}
+			let imageSrcs = [];
+			if(filesList.length>0){
+				imageSrcs = await upload(filesList,this.user.user_id);
+			}
+			if(typeof this.typeKeys['insertDynamic_success'] != 'function'){
+				this.addTypeKeys({
+					'insertDynamic_success': (data)=>{
+						this.editor.txt.clear();//清空编辑内容
+						this.setShowBody(false);
+						this.setRidebarLoading(true);
+						this.clearDynamicList();//清空动态
+						this.$nextTick(()=>{
+							this.send({
+								type: 'getDynamicList',
+								loginKey: this.loginKey,
+								pageNo: 1,pageSize: this.pageSize
+							})
+						})
+					}
+				})
+			}
+			let ip = await getIp();
+			this.send({
+				type: 'insertDynamic',
+				loginKey: this.loginKey,
+				content: this.editor.txt.html(),
+				img_srcs: JSON.stringify(imageSrcs),
+				ip
+			})
+			
 		}
 	},
 	mounted(){

@@ -44,6 +44,10 @@ export default{
 	setDynamicList(state,data){
 		Vue.set(state,'dynamicList',state.dynamicList.concat(data));
 	},
+	setDynamicLike(state,{index,likes,isLike}){
+		Vue.set(state.dynamicList[index],'likes',likes);
+		Vue.set(state.dynamicList[index],'hasMylike',!state.dynamicList[index].hasMylike);
+	},
 	setDynamicIndex(state,data){
 		Vue.set(state,'dynamicIndex',data);
 	}

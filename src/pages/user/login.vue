@@ -4,7 +4,10 @@
 			<h1 class="big-title">wsChat</h1>
 			<div class="panel">
 				<h3 class="small-title">账号密码登录</h3>
-				<p class="tip">登录需账号，还没<router-link to="register">注册</router-link>，请注册。</p>
+				<p class="tip">
+					前往<router-link to="register">注册</router-link>
+					<router-link to="reset" class="reset">忘记密码</router-link>
+				</p>
 				<div class="panel-main">
 					<div class="input-row">
 						<input type="text" placeholder="账号或邮箱" v-model="obj.key">

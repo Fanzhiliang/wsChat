@@ -44,6 +44,7 @@ export default{
 	},
 	computed:{
 		...mapState({
+			typeKeys:state=>state.data.typeKeys,
 			loginKey:state=>state.data.loginKey,
 			friendList:state=>state.data.friendList,
 			groupList:state=>state.data.groupList
@@ -70,6 +71,7 @@ export default{
 		...mapActions({
 			setShowBody: 'view/setShowBody',
 			setRidebarLoading: 'view/setRidebarLoading',
+			addTypeKeys: 'data/addTypeKeys',
 			setFriendList: 'data/setFriendList',
 			setGroupList: 'data/setGroupList',
 			send: 'data/send'
@@ -88,6 +90,14 @@ export default{
 			this.setBarHeight();		
 		},
 		getFriendList(){
+			if(typeof this.typeKeys['getFriendList_success'] != 'function'){
+				this.addTypeKeys({
+					'getFriendList_success': (data)=>{
+						this.setFriendList(data.list);
+						this.setRidebarLoading(false);
+					}
+				})
+			}
 			this.setRidebarLoading(true);
 			this.send({
 				type: 'getFriendList',
@@ -95,6 +105,14 @@ export default{
 			})
 		},
 		getGroupList(){
+			if(typeof this.typeKeys['getGroupList_success'] != 'function'){
+				this.addTypeKeys({
+					'getGroupList_success': (data)=>{
+						this.setGroupList(data.list);
+						this.setRidebarLoading(false);
+					}
+				})
+			}
 			this.setRidebarLoading(true);
 			this.send({
 				type: 'getGroupList',

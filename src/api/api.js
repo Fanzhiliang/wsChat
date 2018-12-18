@@ -5,13 +5,16 @@ axios.defaults.headers = {"Content-Type": "application/x-www-form-urlencoded;cha
 const host = 'http://www.test3.com/wsChat/api/';
 // const host = 'http://ws.alcyh.com/api/';
 
-export const upload = async (file)=>{
+export const upload = async (files,user_id)=>{
 	let formDate = new FormData();
-	formDate.append('file',file);
+	for(let i=0;i<files.length;i++){
+		formDate.append(i,files[i]);
+	}
+	formDate.append('user_id',user_id);
 	let res = await axios.post(host+'upload.php',formDate);
 	return new Promise((resolve)=>{
 		if(res.data.err_code == 0){
-			resolve(res.data.list[0]);
+			resolve(res.data.list);
 		}else{
 			resolve(false);
 		}
@@ -40,35 +43,13 @@ export const getCode = async (data)=>{
 	})
 }
 
-export const getRecord = async (loginKey)=>{
-	let res = await axios.post(host+'getRecord.php',Qs.stringify({loginKey}));
+export const getIp = async ()=>{
+	let res = await axios.post('http://ws.alcyh.com/utils/'+'getIp.php');//本地服务器不能正确获取ip，需要在服务器上的使用接口
 	return new Promise((resolve)=>{
-		if(res.data.err_code == 0){
-			resolve(res.data.list);
+		if(res.data){
+			resolve(res.data);
 		}else{
-			resolve(res.data.err_msg);
-		}
-	})
-}
-
-export const getFriendList = async (loginKey)=>{
-	let res = await axios.post(host+'getFriendList.php',Qs.stringify({loginKey}));
-	return new Promise((resolve)=>{
-		if(res.data.err_code == 0){
-			resolve(res.data.list);
-		}else{
-			resolve(res.data.err_msg);
-		}
-	})
-}
-
-export const getGroupList = async (loginKey)=>{
-	let res = await axios.post(host+'getGroupList.php',Qs.stringify({loginKey}));
-	return new Promise((resolve)=>{
-		if(res.data.err_code == 0){
-			resolve(res.data.list);
-		}else{
-			resolve(res.data.err_msg);
+			resolve(false);
 		}
 	})
 }
