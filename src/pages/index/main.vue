@@ -27,6 +27,7 @@
 				<div v-for="(item,index) in bottomBar" :class="['bar-item',index==barIndex?'on':'']" @click="barIndex=index">
 					<span class="iconfont"></span>
 					<p>{{item.name}}</p>
+					<div class="point" v-if="hasNewDynamic&&index==2"></div>
 				</div>
 			</div>
 
@@ -79,7 +80,8 @@ export default{
 			isShowToggle: false,
 			groupIndex: 0,
 			isOverM: false,
-			editor: {}
+			editor: {},
+			hasNewDynamic: false,//是否有新的动态
 		}
 	},
 	computed:{
@@ -99,6 +101,11 @@ export default{
 		isShowEditor(){
 			if(typeof this.editor.txt.clear == 'function'){
 				this.editor.txt.clear();
+			}
+		},
+		barIndex(newValue){
+			if(newValue==2){
+				this.hasNewDynamic = false;
 			}
 		}
 	},
@@ -196,6 +203,14 @@ export default{
 				}
 			},true)
 		})
+		this.hasNewDynamic = this.user.hasNewDynamic==1 || this.user.hasNewDynamicMsg==1?true:false;
+		if(typeof this.typeKeys['friend_insertDynamic'] != 'function'){
+			this.addTypeKeys({
+				'friend_insertDynamic': (data)=>{
+					this.hasNewDynamic = true;
+				}
+			})
+		}
 	}
 }
 </script>
@@ -318,6 +333,16 @@ export default{
 		text-align: center;
 		color: #878787;
 		cursor: pointer;
+		position: relative;
+	}
+	.bottom-bar .point{
+		position: absolute;
+		background-color: #E13523;
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		top: 10%;
+		right: 30%;
 	}
 	.bottom-bar .bar-item .iconfont{
 		display: inline-block;

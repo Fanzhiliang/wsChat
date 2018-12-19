@@ -69,7 +69,11 @@ export default{
 		exit(){
 			this.$Tip.showTip('确定要退出吗？',{
 				sure:()=>{
-					this.exitLogin();
+					this.send({
+						type: 'exitLogin',
+						loginKey: this.loginKey
+					})
+					this.exitLogin();//删除cookie
 					this.$router.push('/login');
 				}
 			});	

@@ -69,14 +69,14 @@ export default {
 			//let ws = new WebSocket('ws://120.78.128.4:443');
 			ws.onmessage = (e)=>{
 				let data = JSON.parse(e.data);
-				console.log(data);
+				console.log(JSON.parse(JSON.stringify(data)));
 				if(data.err_code == 0){
 					for(let key in this.typeKeys){
 						if(data.type == key && typeof this.typeKeys[key] == 'function'){
 							this.typeKeys[key](data);
 						}
 					}
-					//this.setRidebarLoading(false);
+					//this.setRidebarLoading(false); 
 				}else{
 					this.$Tip.showTip(data.err_msg,{time:2});
 					if(data.err_code == 1){//错误代码为1都是没登录时发生的

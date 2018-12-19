@@ -19,7 +19,7 @@
 				<p v-if="item.address" class="address ellipsis" :title="item.address">{{item.address}}</p>
 				<p class="bottom">
 					<span class="date">{{item.write_date_text}}</span>
-					<a href="#" class="delete" @click="delDynamic(item.dynamic_id)">删除</a>
+					<a href="#" class="delete" @click="delDynamic(item.dynamic_id)" v-if="item.user_id==user.user_id">删除</a>
 					<span class="iconfont icon-more" ref="more" @click.stop="clickMore(index)"></span>
 				</p>
 
