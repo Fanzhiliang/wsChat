@@ -116,19 +116,28 @@ export default{
 				this.$Tip.showTip('验证码不能为空',{time:2});
 				return;
 			}
-			if(typeof this.typeKeys['reset_success'] != 'function'){
-				this.addTypeKeys({
-					'reset_success': (data)=>{
-						this.setUser(data.list[0]);
-						this.$router.push('/');
-						this.setShowBody('userInfo');
-					}
-				})
-			}
-			this.send({
+			// if(typeof this.typeKeys['reset_success'] != 'function'){
+			// 	this.addTypeKeys({
+			// 		'reset_success': (data)=>{
+			// 			this.setUser(data.list[0]);
+			// 			this.$router.push('/');
+			// 			this.setShowBody('userInfo');
+			// 		}
+			// 	})
+			// }
+			// this.send({
+			// 	type: 'reset',
+			// 	user: this.obj
+			// });
+
+			this.send({data: {
 				type: 'reset',
 				user: this.obj
-			});
+			},callback: (data)=>{
+				this.setUser(data.list[0]);
+				this.$router.push('/');
+				this.setShowBody('userInfo');
+			}})
 		}
 	}
 }

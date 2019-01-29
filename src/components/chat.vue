@@ -1,77 +1,21 @@
 <template>
 	<div :class="['chat',isOver?'over':'',isGroup?'group':'']">
 		<div class="title">
-			<span class="iconfont icon-left" @click="setShowBody(false)"></span>
-			绝缘皮卡丘
+			<span class="iconfont icon-left" @click="left"></span>
+			{{obj.nickName||obj.user_name||obj.group_name}}
 			<span class="iconfont icon-group" v-if="isGroup" @click="setShowBody('groupInfo')"></span>
-			<span class="iconfont icon-user" v-else @click="setShowBody('userInfo')"></span>
+			<span class="iconfont icon-user" v-else @click="setShowBody('friendInfo')"></span>
 		</div>
 		<div :class="['discuss-wrap',$isMobile?'mobile':'']" ref="wrap" @click="isOver=false">
-			<div class="discuss-inner" ref="inner">
-				<div class="discuss-row">
-					<img src="static/img/user-head.png" alt="" class="head">
-					<p class="name"><span class="ellipsis">绝缘皮卡丘</span></p>
-					<div class="content">在吗？</div>
-					<span class="date">2018/11/12 10:52:56</span>
+			<div class="discuss-inner" ref="inner" :style="{opacity:isShowList?1:0}">
+
+				<div :class="['discuss-row',item.isMy?'my':'']" v-for="item in obj.chatList">
+					<img :src="item.isMy?user.headPath:obj.headPath" alt="" class="head">
+					<p class="name"><span class="ellipsis">{{item.isMy? user.user_name : obj.nickName||obj.user_name||obj.group_name}}</span></p>
+					<div class="content" v-html="item.content"></div>
+					<span class="date">{{item.write_date}}</span>
 				</div>
-				<div class="discuss-row my">
-					<img src="static/img/user-head.png" alt="" class="head">
-					<p class="name"><span class="ellipsis">运气型选手</span></p>
-					<div class="content">在的。</div>
-					<span class="date">2018/11/12 10:52:58</span>
-				</div>
-				<div class="discuss-row">
-					<img src="static/img/user-head.png" alt="" class="head">
-					<p class="name"><span class="ellipsis">绝缘皮卡丘</span></p>
-					<div class="content">给我发点图片。</div>
-					<span class="date">2018/11/12 10:52:56</span>
-				</div>
-				<div class="discuss-row my">
-					<img src="static/img/user-head.png" alt="" class="head">
-					<p class="name"><span class="ellipsis">运气型选手</span></p>
-					<div class="content">
-						<a href="static/img/test-1.jpg" target="_blank" class="img">
-							<img src="static/img/test-1.jpg" alt="">
-						</a>
-					</div>
-					<span class="date">2018/11/12 10:52:58</span>
-				</div>
-				<div class="discuss-row my">
-					<img src="static/img/user-head.png" alt="" class="head">
-					<p class="name"><span class="ellipsis">运气型选手</span></p>
-					<div class="content">
-						<a href="static/img/test-2.jpg" target="_blank" class="img">
-							<img src="static/img/test-2.jpg" alt="">
-						</a>
-					</div>
-					<span class="date">2018/11/12 10:52:58</span>
-				</div>
-				<div class="discuss-row my">
-					<img src="static/img/user-head.png" alt="" class="head">
-					<p class="name"><span class="ellipsis">运气型选手</span></p>
-					<div class="content">
-						<a href="static/img/group-head.png" target="_blank" class="img">
-							<img src="static/img/group-head.png" alt="">
-						</a>
-					</div>
-					<span class="date">2018/11/12 10:52:58</span>
-				</div>
-				<div class="discuss-row my">
-					<img src="static/img/user-head.png" alt="" class="head">
-					<p class="name"><span class="ellipsis">运气型选手</span></p>
-					<div class="content">
-						<a href="static/img/test-3.jpg" target="_blank" class="img">
-							<img src="static/img/test-3.jpg" alt="">
-						</a>
-					</div>
-					<span class="date">2018/11/12 10:52:58</span>
-				</div>
-				<div class="discuss-row">
-					<img src="static/img/user-head.png" alt="" class="head">
-					<p class="name"><span class="ellipsis">绝缘皮卡丘</span></p>
-					<div class="content">陈州有个陈白脖子，毫州有个毫白脖子。<br>陈州的陈白脖子和毫州的毫白脖子比白脖子。<br>陈州的陈白脖子比不过毫州的毫白脖子，毫州的毫白脖子的白脖子，比不过陈州的陈白脖子的长脖子。</div>
-					<span class="date">2018/11/12 10:52:56</span>
-				</div>
+
 			</div>
 			<div class="scrollBar" ref="bar"></div>
 		</div>
@@ -79,7 +23,7 @@
 			<div id="toolbar"></div>
 			<div id="editor" @keydown="editorChange" @click.stop="editorChange"></div>
 			<input type="file" class="hide" id="image" accept="image/*" @change="fileChange($event)">
-			<button id="send" @click="send">发送</button>
+			<button id="send" @click="sendMsg">发送</button>
 		</div>
 		<div class="image-wrap" v-if="imageSrc">
 			<div class="image-inner">
@@ -102,16 +46,34 @@ import {mapState,mapActions} from 'vuex'
 export default{
 	data(){
 		return{
+			obj: {},
 			bar: false,
 			editor: false,
 			isOver: false,
 			imageSrc: '',
 			isGroup: true,//是否是群聊
+			isShowList: false,//显示聊天
 		}
+	},
+	computed:{
+		...mapState({
+			isShowAudio:state=>state.view.isShowAudio,
+			isCtrlEnter:state=>state.view.isCtrlEnter,
+			chatType:state=>state.data.chatType,
+			friend:state=>state.data.friend,
+			group:state=>state.data.group,
+			typeKeys:state=>state.data.typeKeys,
+			loginKey:state=>state.data.loginKey,
+			user:state=>state.data.user
+		})
 	},
 	methods:{
 		...mapActions({
-			setShowBody: 'view/setShowBody'
+			setShowBody: 'view/setShowBody',
+			send: 'data/send',
+			addTypeKeys: 'data/addTypeKeys',
+			setFriend: 'data/setFriend',
+			setGroup: 'data/setGroup'
 		}),
 		fileChange(e){
         	let file = e.target.files[0];
@@ -129,7 +91,7 @@ export default{
 				br.parentNode.removeChild(br);
 			}
       	},
-		editorChange(){
+		editorChange(e){
 			this.stopWrap();
 			if(typeof this.bar.setBarHeight == 'function' && !this.$isMobile){
 				this.bar.setBarHeight();
@@ -147,13 +109,25 @@ export default{
 		},
 		goBottom(){
 			this.$refs.wrap.scrollTop = this.$refs.inner.clientHeight;
+			this.$nextTick(()=>{
+				this.isShowList = true;
+			})
 		},
 		cancelImage(){
 			this.imageSrc = '';
 		},
-		send(){
+		sendMsg(){
 			this.goBottom();
+		},
+		left(){
+			this.setShowBody(false);
+			this.setFriend({});
+			this.setGroup({});
 		}
+	},
+	created(){
+		this.obj = this.chatType == 'group' ? this.group : this.friend ;
+		this.isGroup = this.chatType == 'group';
 	},
 	mounted(){
 		this.$nextTick(()=>{
@@ -197,6 +171,11 @@ export default{
 					image.click();
 				}
 			},true)
+
+			//如果已经有好友或者群的信息直接滚动到底部并显示聊天
+			if(this.friend || this.group){
+				this.goBottom();
+			}
 		})
 	}
 }
@@ -261,6 +240,9 @@ export default{
 	padding: 20px 50px 10px 50px;
 	position: relative;
 }
+.discuss-row{
+	margin-top: 10px;
+}
 .discuss-row .head{
 	width: 30px;
 	height: 30px;
@@ -284,78 +266,7 @@ export default{
 .group .discuss-row .content::before,.discuss-row .content::after{
 	top: 4px!important;
 }
-.discuss-row .content{
-	display: inline-block;
-	background-color: #d4d8dd;
-	padding: 10px;
-	line-height: 18px;
-	font-size: 14px;
-	border-radius: 5px;
-	position: relative;
-	word-break: break-all;
-	text-align: left;
-}
-.discuss-row .content::before{
-	content: '';
-	width: 0;
-	height: 0;
-	border: 5px solid transparent;
-	border-right-color: #d4d8dd;
-	position: absolute;
-	left: -10px;
-	top: 10px;
-}
-.discuss-row .date{
-	width: 100%;
-	color: #999999;
-	text-align: center;
-	font-size: 12px;
-	position: absolute;
-	top: 3px;
-	left: 0;
-}
-.discuss-row .content .img{
-	display: block;
-}
-.discuss-row .content .img img{
-	max-width: 220px;
-	height: auto;
-	display: block;
-	border-radius: 5px;
-}
-@media screen and ( max-width: 400px){
-	.discuss-row .content .img img{
-		max-width: 160px
-	}
-}
 
-.discuss-row.my{
-	text-align: right;
-}
-.discuss-row.my .head{
-	left: initial;
-	right: 10px;
-}
-.discuss-row.my .name{
-
-}
-.discuss-row.my .content{
-	background-color: #12B7F5;
-	color: #fff;
-}
-.discuss-row.my .content::before{
-	display: none;
-}
-.discuss-row.my .content::after{
-	content: '';
-	width: 0;
-	height: 0;
-	border: 5px solid transparent;
-	border-left-color: #12B7F5;
-	position: absolute;
-	right: -10px;
-	top: 10px;
-}
 .bottom-editor{
 	width: 100%;
 	height: 50px;
@@ -441,5 +352,87 @@ export default{
 }
 .chat.over #send{
 	width: 60px;
+}
+</style>
+
+<style>
+.discuss-row .content{
+	display: inline-block;
+	background-color: #d4d8dd;
+	padding: 10px;
+	line-height: 18px;
+	font-size: 14px;
+	border-radius: 5px;
+	position: relative;
+	word-break: break-all;
+	text-align: left;
+}
+.discuss-row .content::before{
+	content: '';
+	width: 0;
+	height: 0;
+	border: 5px solid transparent;
+	border-right-color: #d4d8dd;
+	position: absolute;
+	left: -10px;
+	top: 10px;
+}
+.discuss-row .date{
+	width: 100%;
+	color: #999999;
+	text-align: center;
+	font-size: 12px;
+	position: absolute;
+	top: 3px;
+	left: 0;
+}
+.discuss-row .content .img{
+	display: block;
+}
+.discuss-row .content .img img{
+	max-width: 220px;
+	height: auto;
+	display: block;
+	border-radius: 5px;
+}
+@media screen and ( max-width: 400px){
+	.discuss-row .content .img img{
+		max-width: 160px
+	}
+}
+
+.discuss-row .content img[alt='face']{
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.discuss-row.my{
+	text-align: right;
+}
+.discuss-row.my .head{
+	left: initial;
+	right: 10px;
+}
+.discuss-row.my .name{
+
+}
+.discuss-row.my .content{
+	background-color: #12B7F5;
+	color: #fff;
+}
+.discuss-row.my .content::before{
+	display: none;
+}
+.discuss-row.my .content::after{
+	content: '';
+	width: 0;
+	height: 0;
+	border: 5px solid transparent;
+	border-left-color: #12B7F5;
+	position: absolute;
+	right: -10px;
+	top: 10px;
 }
 </style>

@@ -1,6 +1,7 @@
 import Vue from 'vue'
+import state from './state'
 
-export default{
+const that = {
 	setUser({commit},data){
 		commit('setUser',data);
 		commit('updateLoginKey');
@@ -14,7 +15,15 @@ export default{
 	addTypeKeys({commit},data){
 		commit('addTypeKeys',data);
 	},
-	send({commit},data){
+	// send({commit},data){
+	// 	commit('send',data);
+	// },
+	send({commit},{data,callback}){
+		if(typeof state.typeKeys[data.type+'_success'] != 'function' && typeof callback == 'function'){
+			let temp = {};
+			temp[data.type+'_success'] = callback;
+			that.addTypeKeys({commit},temp)
+		}
 		commit('send',data);
 	},
 	setRecordList({commit},data){
@@ -65,5 +74,16 @@ export default{
 	},
 	setDynamicIndex({commit},data){
 		commit('setDynamicIndex',data);
+	},
+	setChatType({commit},data){
+		commit('setChatType',data);
+	},
+	setFriend({commit},data){
+		commit('setFriend',data);
+	},
+	setGroup({commit},data){
+		commit('setGroup',data);
 	}
 }
+
+export default that;

@@ -24,7 +24,7 @@
 			</div>
 
 			<div class="bottom-bar">
-				<div v-for="(item,index) in bottomBar" :class="['bar-item',index==barIndex?'on':'']" @click="barIndex=index">
+				<div v-for="(item,index) in bottomBar" :class="['bar-item',index==barIndex?'on':'']" @click="barClick(index)">
 					<span class="iconfont"></span>
 					<p>{{item.name}}</p>
 					<div class="point" v-if="hasNewDynamic&&index==2"></div>
@@ -44,12 +44,16 @@
 				<div id="toolbar-m"></div>
 				<div id="editor-m" @keydown="editorChange" @click.stop="editorChange"></div>
 				<button id="send" @click="publishMsg">发送</button>
+				<span v-if="typeof isShowEditor.name != 'undefined'" class="callUser">
+					{{'@'+isShowEditor.name+':'}}
+				</span>
 			</div>
 
 		</div>
 
 		<div :class="['body',isShowBody?'on':'']">
-			<keep-alive>
+			<component v-if="bodyIs == 'chat'" :is="bodyIs"></component>
+			<keep-alive v-else>
 				<component :is="bodyIs"></component>
 			</keep-alive>
 		</div>
@@ -66,6 +70,7 @@ import chat from '@/components/chat'
 import publish from '@/components/publish'
 import setMessage from '@/components/setMessage'
 import userInfo from '@/components/userInfo'
+import friendInfo from '@/components/friendInfo'
 import groupInfo from '@/components/groupInfo'
 import search from '@/components/search'
 export default{
@@ -73,9 +78,10 @@ export default{
 		return{
 			barIndex: 0,
 			bottomBar:[
-				{name: '消息',is: 'v-msgList'},{name: '联系人',is: 'v-contactList'},
-				{name: '动态',is: 'v-dynamicList'},{name: '设置',is: 'v-setting'}
+				{name: '消息',is: 'msgList'},{name: '联系人',is: 'contactList'},
+				{name: '动态',is: 'dynamicList'},{name: '设置',is: 'setting'}
 			],
+			pageSize: 10,//一页有10条动态
 			isShowAdd: false,
 			isShowToggle: false,
 			groupIndex: 0,
@@ -98,9 +104,14 @@ export default{
 		})
 	},
 	watch:{
-		isShowEditor(){
-			if(typeof this.editor.txt.clear == 'function'){
+		isShowEditor(newValue){
+			if(newValue === false && typeof this.editor.txt.clear == 'function'){//隐藏编辑框清空编辑框内容
 				this.editor.txt.clear();
+			}else if(typeof newValue.name != 'undefined' && typeof this.editor.txt.html == 'function'){//有需要@的人
+				this.$nextTick(()=>{//显示@留空
+					let _width = document.querySelector(".callUser").clientWidth+'px';
+					this.editor.txt.html('<p><span style="width: '+_width+';display:inline-block;">&nbsp;</span><span>&nbsp;</span></p>');
+				})
 			}
 		},
 		barIndex(newValue){
@@ -115,7 +126,8 @@ export default{
 			setRidebarLoading: 'view/setRidebarLoading',
 			setShowEditor: 'view/setShowEditor',
 			addTypeKeys: 'data/addTypeKeys',
-			send: 'data/send'
+			send: 'data/send',
+			clearDynamicList: 'data/clearDynamicList'
 		}),
 		stopWrap(){//解决一开始添加图片或者输入文字会换行的问题
 			if(this.editor.txt.html() == '<p><br></p>' && !this.$UA.isWebkit()){
@@ -138,36 +150,73 @@ export default{
 			}, 111);
 		},
 		publishMsg(){
-			if(typeof this.typeKeys['insertDynamicMsg_success'] != 'function'){
-				this.addTypeKeys({
-					'insertDynamicMsg_success': (data)=>{
-						this.dynamicList[this.dynamicIndex].discussList.push({
-							name: this.user.user_name,
-							content: this.editor.txt.html()
-						})
-						this.setShowEditor(false);
-						this.setRidebarLoading(false);
-					}
-				})
-			}
+			// if(typeof this.typeKeys['insertDynamicMsg_success'] != 'function'){
+			// 	this.addTypeKeys({
+			// 		'insertDynamicMsg_success': (data)=>{
+			// 			this.dynamicList[this.dynamicIndex].discussList.push({
+			// 				name: this.user.user_name,
+			// 				content: this.editor.txt.html()
+			// 			})
+			// 			this.setShowEditor(false);
+			// 			this.setRidebarLoading(false);
+			// 		}
+			// 	})
+			// }
 			this.setRidebarLoading(true);
-			this.send({
+			let callUserSpace = document.querySelectorAll("#editor-m p span");
+			if(callUserSpace && callUserSpace.length>0){
+				callUserSpace[0].style.display = 'none';//清空@留空
+			}
+			// this.send({
+			// 	type: 'insertDynamicMsg',
+			// 	loginKey: this.loginKey,
+			// 	dynamic_id: this.dynamicList[this.dynamicIndex]['dynamic_id'],
+			// 	content: this.editor.txt.html(),
+			// 	callUser_id: (()=>{
+			// 		return typeof this.isShowEditor.user_id!='undefined'?this.isShowEditor.user_id:undefined;
+			// 	})()
+			// })
+
+			this.send({data: {
 				type: 'insertDynamicMsg',
 				loginKey: this.loginKey,
 				dynamic_id: this.dynamicList[this.dynamicIndex]['dynamic_id'],
-				content: this.editor.txt.html()
-			})
+				content: this.editor.txt.html(),
+				callUser_id: (()=>{
+					return typeof this.isShowEditor.user_id!='undefined'?this.isShowEditor.user_id:undefined;
+				})()
+			},callback: (data)=>{
+				this.dynamicList[this.dynamicIndex].discussList.push({
+					name: this.user.user_name,
+					content: this.editor.txt.html()
+				})
+				this.setShowEditor(false);
+				this.setRidebarLoading(false);
+			}})
+		},
+		barClick(index){
+			if(index == 2 && this.barIndex==index){//如果重复点击动态图标，重新刷新动态列表
+				this.clearDynamicList();
+				this.setRidebarLoading(true);
+				this.send({
+					type: 'getDynamicList',
+					loginKey: this.loginKey,
+					pageNo: 1,pageSize: this.pageSize
+				})
+			}
+			this.barIndex=index;
 		}
 	},
 	components:{
-		'v-msgList': msgList,
-		'v-contactList': contactList,
-		'v-dynamicList': dynamicList,
-		'v-setting': setting,
+		msgList,
+		contactList,
+		dynamicList,
+		setting,
 		chat,
 		publish,
 		setMessage,
 		userInfo,
+		friendInfo,
 		groupInfo,
 		search
 	},
@@ -203,7 +252,8 @@ export default{
 				}
 			},true)
 		})
-		this.hasNewDynamic = this.user.hasNewDynamic==1 || this.user.hasNewDynamicMsg==1?true:false;
+		this.hasNewDynamic = this.user.hasNewDynamic==1 || this.user.hasNewDynamicMsg==1?true:false;//新动态或者新评论都显示红点
+		
 		if(typeof this.typeKeys['friend_insertDynamic'] != 'function'){
 			this.addTypeKeys({
 				'friend_insertDynamic': (data)=>{
@@ -505,6 +555,19 @@ export default{
 		border: 0;
 		border-radius: 5px;
 		cursor: pointer;
+	}
+	.callUser{
+		position: absolute;
+		background-color: #fff;
+		top: 8px;
+		left: 20px;
+		height: 32px;
+		line-height: 32px;
+		color: #60729B;
+		border-radius: 10px;
+		font-size: 17px;
+		padding-right: 2px;
+		z-index: 999999;
 	}
 </style>
 

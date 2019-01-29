@@ -105,19 +105,26 @@ export default{
 			})
 		},
 		getGroupList(){
-			if(typeof this.typeKeys['getGroupList_success'] != 'function'){
-				this.addTypeKeys({
-					'getGroupList_success': (data)=>{
-						this.setGroupList(data.list);
-						this.setRidebarLoading(false);
-					}
-				})
-			}
+			// if(typeof this.typeKeys['getGroupList_success'] != 'function'){
+			// 	this.addTypeKeys({
+			// 		'getGroupList_success': (data)=>{
+			// 			this.setGroupList(data.list);
+			// 			this.setRidebarLoading(false);
+			// 		}
+			// 	})
+			// }
 			this.setRidebarLoading(true);
-			this.send({
+			// this.send({
+			// 	type: 'getGroupList',
+			// 	loginKey: this.loginKey
+			// })
+			this.send({data: {
 				type: 'getGroupList',
 				loginKey: this.loginKey
-			})
+			},callback: (data)=>{
+				this.setGroupList(data.list);
+				this.setRidebarLoading(false);
+			}})
 		}
 	},
 	created(){

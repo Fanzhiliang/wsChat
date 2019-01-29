@@ -15,7 +15,7 @@
 					<a v-if="src" href="#" class="image col" @click.prevent="" :style="'background-image:url('+src+')'">
 						<span class="iconfont icon-offline" @click="deleteSelect(index)"></span>
 					</a>
-					<input type="file" class="hide" ref="image" @change="fileChange($event)">
+					<input type="file" class="hide" ref="image" accept="image/*" @change="fileChange($event)">
 				</template>
 				
 				<div class="add col" @click="startSelect" v-show="imageCount<imageSrcs.length">
@@ -28,7 +28,7 @@
 
 <script>
 import {mapState,mapActions} from 'vuex'
-import {upload,getIp} from '@/api/api.js'
+import {upload,getAddressByQQMap} from '@/api/api.js'
 export default{
 	data(){
 		return{
@@ -116,32 +116,52 @@ export default{
 			if(filesList.length>0){
 				imageSrcs = await upload(filesList,this.user.user_id);
 			}
-			if(typeof this.typeKeys['insertDynamic_success'] != 'function'){
-				this.addTypeKeys({
-					'insertDynamic_success': (data)=>{
-						this.editor.txt.clear();//清空编辑内容
-						this.setShowBody(false);
-						this.setRidebarLoading(true);
-						this.clearDynamicList();//清空动态
-						this.$nextTick(()=>{
-							this.send({
-								type: 'getDynamicList',
-								loginKey: this.loginKey,
-								pageNo: 1,pageSize: this.pageSize
-							})
-						})
-					}
-				})
-			}
-			let ip = await getIp();
-			this.send({
+			// if(typeof this.typeKeys['insertDynamic_success'] != 'function'){
+			// 	this.addTypeKeys({
+			// 		'insertDynamic_success': (data)=>{
+			// 			this.editor.txt.clear();//清空编辑内容
+			// 			this.setShowBody(false);
+			// 			this.setRidebarLoading(true);
+			// 			this.clearDynamicList();//清空动态
+			// 			this.$nextTick(()=>{
+			// 				this.send({
+			// 					type: 'getDynamicList',
+			// 					loginKey: this.loginKey,
+			// 					pageNo: 1,pageSize: this.pageSize
+			// 				})
+			// 			})
+			// 		}
+			// 	})
+			// }
+
+			let address = await getAddressByQQMap();
+			// this.send({
+			// 	type: 'insertDynamic',
+			// 	loginKey: this.loginKey,
+			// 	content: this.editor.txt.html(),
+			// 	img_srcs: JSON.stringify(imageSrcs),
+			// 	address
+			// })
+			
+			this.send({data: {
 				type: 'insertDynamic',
 				loginKey: this.loginKey,
 				content: this.editor.txt.html(),
 				img_srcs: JSON.stringify(imageSrcs),
-				ip
-			})
-			
+				address
+			},callback: (data)=>{
+				this.editor.txt.clear();//清空编辑内容
+				this.setShowBody(false);
+				this.setRidebarLoading(true);
+				this.clearDynamicList();//清空动态
+				this.$nextTick(()=>{
+					this.send({
+						type: 'getDynamicList',
+						loginKey: this.loginKey,
+						pageNo: 1,pageSize: this.pageSize
+					})
+				})
+			}})
 		}
 	},
 	mounted(){

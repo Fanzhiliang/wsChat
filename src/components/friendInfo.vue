@@ -1,91 +1,77 @@
 <template>
 	<div class="userInfo" v-loading="isLoading">
 		<div class="title">
-			<span class="iconfont icon-left" @click="setShowBody(false)"></span>
-			用户信息
-			<span class="iconfont icon-edit" @click="isEdit=true" v-if="!isEdit"></span>
-			<span class="pub" @click="reset();isEdit=false;" v-else>取消</span>
+			<span class="iconfont icon-left" @click="setShowBody('chat')"></span>
+			好友信息
+<!-- 			<span class="iconfont icon-edit" @click="isEdit=true" v-if="!isEdit"></span>
+			<span class="pub" @click="reset();isEdit=false;" v-else>取消</span> -->
 		</div>
 		<div class="info-wrap">
 			<div class="info-inner clearfix">
-				<div class="start-upload" :style="'background-image:url('+(headResult||user.headPath||'static/img/user-head.png')+')'">
-					<img src="@/assets/img/upload.png" alt="" v-if="isEdit">
-					<input type="file" accept="image/*" class="hide" ref="head" @change="fileChange($event)">
-					<div class="mask" v-if="isEdit" @click="startUpload"></div>
+				<div class="start-upload" :style="'background-image:url('+(headResult||obj.headPath||'static/img/user-head.png')+')'">
+					<div class="mask" v-if="isEdit"></div>
 				</div>
-				<p class="nickname ellipsis" :title="user.user_name" v-if="!isEdit">{{user.user_name}}</p>
-				<p class="nickname" :title="user.user_name" v-else>
-					<input type="text" class="name" v-model="user.user_name">
+				<p class="nickname ellipsis" :title="obj.nickName" v-if="!isEdit">
+					{{obj.nickName}}
+					<span class="iconfont icon-edit" @click="isEdit=true" v-if="!isEdit"></span>
+				</p>
+				<p class="nickname" :title="obj.nickName" v-else>
+					<input type="text" class="name" v-model="obj.nickName">
 				</p>
 
 				<div class="input-row">
 					<label for="">账号</label>
-					<p class="value ellipsis" :title="user.user_account">{{user.user_account}}</p>
+					<p class="value ellipsis" :title="obj.user_account">{{'('+obj.user_name+')'+obj.user_account}}</p>
 				</div>
 
 				<div class="input-row">
 					<label for="">邮箱</label>
-					<p class="value ellipsis" :title="user.email">{{user.email}}</p>
+					<p class="value ellipsis" :title="obj.email">{{obj.email}}</p>
 				</div>
 
 				<div class="input-row">
 					<label for="">年龄</label>
-					<p class="value ellipsis" v-if="!isEdit">{{user.age}}岁</p>
-					<p class="value ellipsis" v-else>
-						<input type="text" class="age" v-model="user.age">岁
-					</p>
+					<p class="value ellipsis">{{obj.age}}岁</p>
 				</div>
 
 				<div class="input-row">
 					<label for="">地区</label>
-					<p class="value ellipsis" :title="user.area">
-						{{user.area||'无'}}<span class="iconfont icon-edit" @click="isShowArea=true" v-if="isEdit"></span>
-					</p>
+					<p class="value ellipsis" :title="obj.area">{{obj.area||'无'}}</p>
 				</div>
 
 				<div class="input-row">
 					<label for="">电话</label>
-					<p class="value ellipsis" :title="user.phone" v-if="!isEdit">{{user.phone}}</p>
-					<p class="value ellipsis" v-else>
-						<input type="text" class="normal" v-model="user.phone">
-					</p>
+					<p class="value ellipsis" :title="obj.phone">{{obj.phone}}</p>
 				</div>
 
 				<div class="input-row">
 					<label for="nickame">性别</label>
-					<p class="value ellipsis">
-						{{user.sexName}}<span class="iconfont icon-edit" @click="isShowSex=true" v-if="isEdit"></span>
-					</p>
+					<p class="value ellipsis">{{obj.sexName}}</p>
 				</div>
 
 				<div class="input-row sign">
 					<label for="">签名</label>
-					<p class="value" :title="user.sign" v-if="!isEdit">{{user.sign}}</p>
-					<p class="value ellipsis" v-else>
-						<input type="text" class="sign" v-model="user.sign">
-					</p>
+					<p class="value" :title="obj.sign">{{obj.sign}}</p>
 				</div>
 			</div>
-			<div class="info-buts" v-if="isEdit">
+			<div class="info-buts" v-if="!isEdit">
+				<button @click="goChat" class="save">发消息</button>
+				<button @click="deleteFriend" class="reset">删除</button>
+			</div>
+			<div class="info-buts" v-else>
 				<button @click="save" class="save">保存</button>
-				<button @click="reset" class="reset">重置</button>
+				<button @click="reset" class="reset">取消</button>
 			</div>
 		</div>
-		<areaSelecter :isShow.sync="isShowArea" :areaString.sync="user.area" :areaArray.sync="user.areaArray"/>
-		<sexSelecter :isShow.sync="isShowSex" :sexName.sync="user.sexName" :sexId.sync="user.sex"/>
-		<headSelecter :isShow.sync="isShowHead" :src.sync="headSrc" :head="$refs.head" :result.sync="headResult"/>
 	</div>
 </template>
 
 <script>
 import {mapState,mapActions} from 'vuex'
-import areaSelecter from '@/components/area-selecter';
-import sexSelecter from '@/components/sex-selecter';
-import headSelecter from '@/components/head-selecter';
 export default{
 	data(){
 		return{
-			user: {},
+			obj: {},
 			other: {},
 			isEdit: false,
 			isShowSex: false,
@@ -100,7 +86,8 @@ export default{
 		...mapState({
 			typeKeys:state=>state.data.typeKeys,
 			stateUser:state=>state.data.user,
-			loginKey:state=>state.data.loginKey
+			loginKey:state=>state.data.loginKey,
+			friend:state=>state.data.friend,
 		})
 	},
 	methods:{
@@ -108,78 +95,56 @@ export default{
 			setShowBody: 'view/setShowBody',
 			addTypeKeys: 'data/addTypeKeys',
 			setUser: 'data/setUser',
-			send: 'data/send'
+			send: 'data/send',
+			setFriend: 'data/setFriend'
 		}),
-		startUpload(){
-			this.$refs.head.click();
+		goChat(){
+
 		},
-		fileChange(e){
-        	let file = e.target.files[0];
-	        let reader = new FileReader();
-          	let handler = (e)=>{
-            	this.headSrc = e.target.result;
-            	this.isShowHead = true;
-            	reader.removeEventListener('load',handler);
-          	};
-          	reader.addEventListener('load',handler);
-          	reader.readAsDataURL(file);
-      	},
-		reset(){
-			this.headSrc = '';
-			this.headResult = '';
-			this.$refs.head.value = '';
-			this.user = Object.assign({},this.other);
+		deleteFriend(){
+
 		},
 		save(){
-			if(this.headResult){//有更换头像
-				this.user.headPath = this.headResult;
-			}
-
-			// if(typeof this.typeKeys['updateUser_success'] != 'function'){
+			// if(typeof this.typeKeys['setNickName_success'] != 'function'){
 			// 	this.addTypeKeys({
-			// 		'updateUser_success': (data)=>{
-			// 			this.setUser(data.list[0]);
-			// 			this.user = Object.assign({},data.list[0]);
-			// 			this.other = Object.assign({},this.user);
+			// 		'setNickName_success': (data)=>{
 			// 			this.isLoading = false;
+			// 			this.setFriend(this.obj);
+			// 			this.isEdit = false;
 			// 		}
 			// 	})
 			// }
-
 			this.isLoading = true;
 			// this.send({
-			// 	type: 'updateUser',
+			// 	type: 'setNickName',
 			// 	loginKey: this.loginKey,
-			// 	info: this.user
-			// })
+			// 	friend_id: this.obj.user_id,
+			// 	nickName: this.obj.nickName
+			// });
 
 			this.send({data: {
-				type: 'updateUser',
+				type: 'setNickName',
 				loginKey: this.loginKey,
-				info: this.user
+				friend_id: this.obj.user_id,
+				nickName: this.obj.nickName
 			},callback: (data)=>{
-				this.setUser(data.list[0]);
-				this.user = Object.assign({},data.list[0]);
-				this.other = Object.assign({},this.user);
 				this.isLoading = false;
+				this.setFriend(this.obj);
+				this.isEdit = false;
 			}})
-
-			this.other = Object.assign({},this.user);
+		},
+		reset(){
+			this.obj = Object.assign({},this.other);
 			this.isEdit = false;
 		}
 	},
 	activated(){
-		this.user = Object.assign({},this.stateUser);
-		this.other = Object.assign({},this.user);
+		this.obj = Object.assign({},this.friend);
+		this.other = Object.assign({},this.obj);
 	},
 	deactivated(){
 		this.reset();
 		this.isEdit = false;
-	},
-	components:{
-		areaSelecter,
-		sexSelecter,
-		headSelecter
 	}
 }
 </script>
@@ -350,6 +315,9 @@ input.normal{
 }
 .info-buts button.reset{
 	background-color: #d9534f;
+}
+.iconfont.icon-edit{
+	cursor: pointer;
 }
 @media screen and (max-width: 555px) {
 	.input-row{

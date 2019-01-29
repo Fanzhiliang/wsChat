@@ -61,6 +61,9 @@ export default{
 					this.showList.forEach((item)=>{item.list=[];});
 				}
 				this.showProvince();
+				if(!this.areaArray){//无地区数据返回
+					return;
+				}
 				let tempArea = this.areaString.split(' ');
 				this.provinceName = tempArea[0]||'';
 				this.cityName = tempArea[1]||'';
@@ -111,7 +114,7 @@ export default{
 			switch ((item.code+'').length) {
 				case 2:
 					this.provinceCode = item.code;
-					this.provinceName = item.name
+					this.provinceName = item.name;
 					this.showCity();
 					//清空下级的选择
 					this.cityCode = 0;
@@ -197,6 +200,7 @@ export default{
 	line-height: 1.8em;
 	position: relative;
 	color: #12B7F5;
+	cursor: pointer;
 }
 .main .result p::before{
 	width: 0.3em;
@@ -252,7 +256,8 @@ export default{
 }
 .main .list .value span{
 	display: inline-block;
-	width: 16em;
+	/* width: 16em; */
+	cursor: pointer;
 }
 
 

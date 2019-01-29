@@ -46,23 +46,39 @@ export default{
 		...mapActions({
 			send: 'data/send',
 			addTypeKeys: 'data/addTypeKeys',
-			setUser: 'data/setUser'
+			setUser: 'data/setUser',
+			setFriend: 'data/setFriend',
+			setGroup: 'data/setGroup'
 		}),
 		submit(){
-			if(typeof this.typeKeys['login_success'] != 'function'){
-				this.addTypeKeys({
-					'login_success': (data)=>{
-						this.setUser(data.list[0]);
-						this.$router.push('/');
-					}
-				})
-			}
+			// if(typeof this.typeKeys['login_success'] != 'function'){
+			// 	this.addTypeKeys({
+			// 		'login_success': (data)=>{
+			// 			this.setUser(data.list[0]);
+			// 			//清空好友和群信息防止，用户登录别的账号数据依然保持
+			// 			this.setFriend({});
+			// 			this.setGroup({});
+			// 			this.$router.push('/');
+			// 		}
+			// 	})
+			// }
 			this.$set(this.obj,'user_account',this.obj.key);
 			this.$set(this.obj,'email',this.obj.key);
-			this.send({
+			// this.send({
+			// 	type: 'login',
+			// 	user: this.obj
+			// });
+
+			this.send({data: {
 				type: 'login',
 				user: this.obj
-			});
+			},callback: (data)=>{
+				this.setUser(data.list[0]);
+				//清空好友和群信息防止，用户登录别的账号数据依然保持
+				this.setFriend({});
+				this.setGroup({});
+				this.$router.push('/');
+			}})
 		}
 	}
 }

@@ -1,5 +1,5 @@
 <template>
-	<div class="head-selecter" v-show="isShow">
+	<div class="head-selecter" v-show="isShow" v-loading="isLoading">
 		<transition name="show">
 			<div class="main" v-show="isShow">
 				<div class="head">
@@ -42,7 +42,7 @@ import {getWindowWidth} from '@/assets/js/utils.js'
 import {mapState,mapActions} from 'vuex'
 import {upload,cutHead} from '@/api/api.js'
 export default{
-	props:['isShow','src','head'],
+	props:['isShow','src','head','result'],
 	data(){
 		return{
 			isMove: false,
@@ -59,7 +59,8 @@ export default{
 			headWidth: '',
 			headHeight: '',
 			rate: 0,
-			pointClass: ''
+			pointClass: '',
+			isLoading: false
 		}
 	},
 	watch:{
@@ -94,9 +95,10 @@ export default{
 		}
 	},
 	methods:{
-		close(){
+		close(res){
 			this.$emit('update:isShow',false);
 			this.$emit('update:src','');
+			this.$emit('update:result',res||'');
 			this.selecterTop = 0;
 			this.selecterLeft = 0;
 			this.isInit = false;
@@ -222,6 +224,7 @@ export default{
 			}
 		},
 		async sure(){
+			this.isLoading = true;
 			let imageSrcs = await upload(this.head.files,this.user.user_id);
 			if(imageSrcs[0]){
 				let newSrc = await cutHead({
@@ -231,7 +234,8 @@ export default{
 					endY: (this.selecterTop+this.selecterHeight)/this.bgHeight,
 					imageSrc: imageSrcs[0]
 				});
-				console.log(newSrc);//新头像地址
+				this.isLoading = false;
+				this.close(newSrc);
 			}
 		}
 	},
@@ -398,7 +402,7 @@ button{
 .head-selecter{
 	width: 100%;
 	height: 100%;
-	position: absolute;
+	position: absolute!important;
 	left: 0;
 	top: 40px;
 	background-color: rgba(0, 0, 0, 0.5);

@@ -32,18 +32,26 @@ export default {
 			send: 'data/send'
 		}),
 		getUserByLoginKey(){
-			if(typeof this.typeKeys['getUserByLoginKey_success'] != 'function'){
-				this.addTypeKeys({
-					'getUserByLoginKey_success': (data)=>{
-						this.setUser(data.list[0]);
-						this.setRidebarLoading(false);
-					}
-				})
-			}
-			this.send({
+			// if(typeof this.typeKeys['getUserByLoginKey_success'] != 'function'){
+			// 	this.addTypeKeys({
+			// 		'getUserByLoginKey_success': (data)=>{
+			// 			this.setUser(data.list[0]);
+			// 			this.setRidebarLoading(false);
+			// 		}
+			// 	})
+			// }
+			// this.send({
+			// 	type: 'getUserByLoginKey',
+			// 	loginKey: this.loginKey
+			// })
+
+			this.send({data: {
 				type: 'getUserByLoginKey',
 				loginKey: this.loginKey
-			})
+			},callback: (data)=>{
+				this.setUser(data.list[0]);
+				this.setRidebarLoading(false);
+			}})
 		},
 		checkLogin(){
 	  		if(this.$route.path == '/'){//已经在登录或者注册页面时不用检查

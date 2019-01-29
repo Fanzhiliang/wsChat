@@ -48,23 +48,34 @@ export default{
 			exitLogin: 'data/exitLogin'
 		}),
 		toggleStatus(status){
-			if(typeof this.typeKeys['setStatus_success'] != 'function'){
-				this.addTypeKeys({
-					'setStatus_success': (data)=>{
-						this.send({
-							type: 'getUserByLoginKey',
-							loginKey: this.loginKey
-						})
-					}
-				})
-			}
+			// if(typeof this.typeKeys['setStatus_success'] != 'function'){
+			// 	this.addTypeKeys({
+			// 		'setStatus_success': (data)=>{
+			// 			this.send({
+			// 				type: 'getUserByLoginKey',
+			// 				loginKey: this.loginKey
+			// 			})
+			// 		}
+			// 	})
+			// }
 			this.setRidebarLoading(true);
-			this.send({
+			// this.send({
+			// 	type: 'setStatus',
+			// 	loginKey: this.loginKey,
+			// 	status: status
+			// })
+			this.isShowSelect = false;
+
+			this.send({data: {
 				type: 'setStatus',
 				loginKey: this.loginKey,
 				status: status
-			})
-			this.isShowSelect = false;
+			},callback: (data)=>{
+				this.send({
+					type: 'getUserByLoginKey',
+					loginKey: this.loginKey
+				})
+			}})
 		},
 		exit(){
 			this.$Tip.showTip('确定要退出吗？',{

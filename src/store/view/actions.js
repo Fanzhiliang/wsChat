@@ -24,5 +24,8 @@ export default{
 	},
 	setRidebarLoading({commit},value){
 		commit('setRidebarLoading',value);
+	},
+	showAlert({commit},data){
+		commit('showAlert',data);
 	}
 }

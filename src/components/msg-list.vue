@@ -2,9 +2,9 @@
 	<div class="msg-list" ref="wrap">
 		<div class="list-inner" ref="inner">
 			<div class="item-wrap" v-for="(item,index) in recordList" ref="itemWrap">
-				<div :class="['item',item.sort==0?'':'top']" @click="clickItem(index)">
+				<div :class="['item',item.sort==0?'':'top']" @click="clickItem(item)">
 					<img :src="item.headPath" class="head" alt=""><!-- ../assets/img/group-head.png -->
-					<p class="name" :title="item.name">{{item.name}}</p>
+					<p class="name" :title="item.nickName||item.name">{{item.nickName||item.name}}</p>
 					<p class="value" v-html="item.content"></p>
 					<div class="toggle-ctrl" v-show="isShowToggle" @click.stop="showCtrl(index)" ref="toggleCtrl">
 						<span class="iconfont icon-left"></span>
@@ -37,7 +37,9 @@ export default{
 		...mapState({
 			typeKeys:state=>state.data.typeKeys,
 			loginKey:state=>state.data.loginKey,
-			recordList:state=>state.data.recordList
+			recordList:state=>state.data.recordList,
+			friend:state=>state.data.friend,
+			group:state=>state.data.group
 		})
 	},
 	methods:{
@@ -46,10 +48,65 @@ export default{
 			setRidebarLoading: 'view/setRidebarLoading',
 			addTypeKeys: 'data/addTypeKeys',
 			setRecordList: 'data/setRecordList',
-			send: 'data/send'
+			send: 'data/send',
+			setChatType: 'data/setChatType',
+			setFriend: 'data/setFriend',
+			setGroup: 'data/setGroup'
 		}),
-		clickItem(index){
-			this.setShowBody('chat');
+		clickItem(item){
+			if(item.type == 'friendMsg' && this.friend['user_id'] != item.id){//防止重复获取
+				this.setShowBody(false);
+				// if(typeof this.typeKeys['getUserInfoById_success'] != 'function'){
+				// 	this.addTypeKeys({
+				// 		'getUserInfoById_success': (data)=>{
+				// 			if(data.list.length==2){
+				// 				this.setFriend(Object.assign(data.list[0],{chatList: data.list[1]}));
+				// 			}
+				// 			this.setChatType('friend');
+				// 			this.setGroup({});//清空群信息
+				// 			this.setShowBody('chat');
+				// 		}
+				// 	})
+				// }
+				// this.send({type: 'getUserInfoById',loginKey: this.loginKey,user_id: item.id});
+
+				this.send({data: {
+					type: 'getUserInfoById',loginKey: this.loginKey,user_id: item.id
+				},callback: (data)=>{
+					if(data.list.length==2){
+						this.setFriend(Object.assign(data.list[0],{chatList: data.list[1]}));
+					}
+					this.setChatType('friend');
+					this.setGroup({});//清空群信息
+					this.setShowBody('chat');
+				}})
+			}else if(item.type == 'groupMsg' && this.group['group_id'] != item.id){//防止重复获取
+				this.setShowBody(false);
+				// if(typeof this.typeKeys['getGroupInfoById_success'] != 'function'){
+				// 	this.addTypeKeys({
+				// 		'getGroupInfoById_success': (data)=>{
+				// 			if(data.list.length==2){
+				// 				this.setGroup(Object.assign(data.list[0],{chatList: data.list[1]}));
+				// 			}
+				// 			this.setChatType('group');
+				// 			this.setFriend({});//清空好友信息
+				// 			this.setShowBody('chat');
+				// 		}
+				// 	})
+				// }
+				// this.send({type: 'getGroupInfoById',loginKey: this.loginKey,group_id: item.id});
+
+				this.send({data: {
+					type: 'getGroupInfoById',loginKey: this.loginKey,group_id: item.id
+				},callback: (data)=>{
+					if(data.list.length==2){
+						this.setGroup(Object.assign(data.list[0],{chatList: data.list[1]}));
+					}
+					this.setChatType('group');
+					this.setFriend({});//清空好友信息
+					this.setShowBody('chat');
+				}})
+			}
 		},
 		showCtrl(index){
 			this.$refs.itemWrap.forEach((item,i)=>{
@@ -68,36 +125,55 @@ export default{
 			})
 		},
 		getRecord(){
-			if(typeof this.typeKeys['getRecordList_success'] != 'function'){
-				this.addTypeKeys({
-					'getRecordList_success': (data)=>{
-						this.setRecordList(data.list);
-						this.setRidebarLoading(false);
-					}
-				})
-			}
-			this.setRidebarLoading(true);
-			this.send({
+			// if(typeof this.typeKeys['getRecordList_success'] != 'function'){
+			// 	this.addTypeKeys({
+			// 		'getRecordList_success': (data)=>{
+			// 			this.setRecordList(data.list);
+			// 			this.setRidebarLoading(false);
+			// 		}
+			// 	})
+			// }
+			// this.setRidebarLoading(true);
+			// this.send({
+			// 	type: 'getRecordList',
+			// 	loginKey: this.loginKey
+			// })
+
+			this.send({data: {
 				type: 'getRecordList',
 				loginKey: this.loginKey
-			})
+			},callback: (data)=>{
+				this.setRecordList(data.list);
+				this.setRidebarLoading(false);
+			}})
 		},
 		sortRecord(item){
-			if(typeof this.typeKeys['sortRecord_success'] != 'function'){
-				this.addTypeKeys({
-					'sortRecord_success': (data)=>{
-						this.setRecordList([]);
-						this.getRecord();
-					}
-				})
-			}
-			this.send({
+			// if(typeof this.typeKeys['sortRecord_success'] != 'function'){
+			// 	this.addTypeKeys({
+			// 		'sortRecord_success': (data)=>{
+			// 			this.setRecordList([]);
+			// 			this.getRecord();
+			// 		}
+			// 	})
+			// }
+			// this.send({
+			// 	type: 'sortRecord',
+			// 	record_id: item.record_id,
+			// 	loginKey: this.loginKey,
+			// 	tb_type: item.type,
+			// 	sort: item.sort==0?1:0
+			// })
+
+			this.send({data: {
 				type: 'sortRecord',
 				record_id: item.record_id,
 				loginKey: this.loginKey,
 				tb_type: item.type,
 				sort: item.sort==0?1:0
-			})
+			},callback: (data)=>{
+				this.setRecordList([]);
+				this.getRecord();
+			}})
 		}
 	},
 	created(){

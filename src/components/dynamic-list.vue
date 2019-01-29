@@ -26,15 +26,17 @@
 				<div class="discuss" v-if="item.likes.length>0 || item.discussList.length>0">
 					<div class="like" v-if="item.likes.length>0">
 						<span class="iconfont icon-heart1"></span>
-						<template v-for="(like,index) in item.likes">
+						<template v-for="(like,index2) in item.likes">
 							<a href="#" class="like-name">{{like.name}}</a>
-							<span class="separate" v-if="index<item.likes.length-1">,</span>
+							<span class="separate" v-if="index2<item.likes.length-1">,</span>
 						</template>
 					</div>
 
 					<div class="discuss-list" v-if="item.discussList.length>0">
 						<p v-for="discuss in item.discussList">
-							<a href="#" class="discuss-name">{{discuss.name}}:</a><span v-html="discuss.content"></span>
+							<a href="#" class="discuss-name" @click.prevent="setDynamicIndex(index);callFriend(discuss)">{{discuss.name}}:</a>
+							<a href="#" class="discuss-name" v-if="discuss.callUser" @click.prevent="setDynamicIndex(index);callFriend(discuss.callUser)">@{{discuss.callUser.name}}</a>
+							<span v-html="discuss.content"></span>
 						</p>
 					</div>
 				</div>
@@ -42,7 +44,7 @@
 		</div>
 		<div class="dynamic-mask" v-if="isShowCtrl||isShowEditor"></div>
 		<div class="scrollBar" ref="bar"></div>
-		<div class="fixed-ctrl clearfix" ref="fixedCtrl" v-show="isShowCtrl" @mousedown.stop="" v-if="">
+		<div class="fixed-ctrl clearfix" ref="fixedCtrl" v-show="isShowCtrl" @mousedown.stop="">
 			<a href="#" @mousedown="setLikeDynamic" v-if="ctrlDynamic && !ctrlDynamic.hasMylike">
 				<span class="iconfont icon-heart1"></span>赞
 			</a>
@@ -111,67 +113,108 @@ export default{
 			this.setDynamicIndex(index);
 		},
 		getDynamicList(){
-			if(typeof this.typeKeys['getDynamicList_success'] != 'function'){
-				this.addTypeKeys({
-					'getDynamicList_success': (data)=>{
-						this.setDynamicList({
-							list: data.list,
-							user_id: this.user.user_id
-						});
-						this.setRidebarLoading(false);
-					}
-				})
-			}
+			// if(typeof this.typeKeys['getDynamicList_success'] != 'function'){
+			// 	this.addTypeKeys({
+			// 		'getDynamicList_success': (data)=>{
+			// 			this.setDynamicList({
+			// 				list: data.list,
+			// 				user_id: this.user.user_id
+			// 			});
+			// 			this.setRidebarLoading(false);
+			// 		}
+			// 	})
+			// }
 			this.setRidebarLoading(true);
-			this.send({
+			// this.send({
+			// 	type: 'getDynamicList',
+			// 	loginKey: this.loginKey,
+			// 	pageNo: this.pageNo,
+			// 	pageSize: this.pageSize
+			// })
+
+			this.send({data: {
 				type: 'getDynamicList',
 				loginKey: this.loginKey,
 				pageNo: this.pageNo,
 				pageSize: this.pageSize
-			})
+			},callback: (data)=>{
+				this.setDynamicList({
+					list: data.list,
+					user_id: this.user.user_id
+				});
+				this.setRidebarLoading(false);
+			}})
 		},
 		delDynamic(dynamicId){
 			this.$Tip.showTip('确定要删除吗？',{
 				sure:()=>{
-					if(typeof this.typeKeys['delDynamic_success'] != 'function'){
-						this.addTypeKeys({
-							'delDynamic_success': (data)=>{
-								this.setRidebarLoading(false);
-								this.clearDynamicList();
-								this.$nextTick(()=>{
-									this.getDynamicList();
-								});
-							}
-						})
-					}
+					// if(typeof this.typeKeys['delDynamic_success'] != 'function'){
+					// 	this.addTypeKeys({
+					// 		'delDynamic_success': (data)=>{
+					// 			this.setRidebarLoading(false);
+					// 			this.clearDynamicList();
+					// 			this.$nextTick(()=>{
+					// 				this.getDynamicList();
+					// 			});
+					// 		}
+					// 	})
+					// }
 					this.setRidebarLoading(true);
-					this.send({
+					// this.send({
+					// 	type: 'delDynamic',
+					// 	loginKey: this.loginKey,
+					// 	dynamic_id: dynamicId
+					// })
+
+					this.send({data: {
 						type: 'delDynamic',
 						loginKey: this.loginKey,
 						dynamic_id: dynamicId
-					})
+					},callback: (data)=>{
+						this.setRidebarLoading(false);
+						this.clearDynamicList();
+						this.$nextTick(()=>{
+							this.getDynamicList();
+						});
+					}})
 				}
 			})		
 		},
 		setLikeDynamic(){
-			if(typeof this.typeKeys['setLikeDynamic_success'] != 'function'){
-				this.addTypeKeys({
-					'setLikeDynamic_success': (data)=>{
-						this.setRidebarLoading(false);
-						this.isShowCtrl = false;
-						this.setDynamicLike({
-							index:this.dynamicIndex,
-							likes:data.list
-						})
-					}
-				})
-			}
+			// if(typeof this.typeKeys['setLikeDynamic_success'] != 'function'){
+			// 	this.addTypeKeys({
+			// 		'setLikeDynamic_success': (data)=>{
+			// 			this.setRidebarLoading(false);
+			// 			this.isShowCtrl = false;
+			// 			this.setDynamicLike({
+			// 				index:this.dynamicIndex,
+			// 				likes:data.list
+			// 			})
+			// 		}
+			// 	})
+			// }
 			this.setRidebarLoading(true);
-			this.send({
+			// this.send({
+			// 	type: 'setLikeDynamic',
+			// 	loginKey: this.loginKey,
+			// 	dynamic_id: this.ctrlDynamic.dynamic_id
+			// })
+
+			this.send({data: {
 				type: 'setLikeDynamic',
 				loginKey: this.loginKey,
 				dynamic_id: this.ctrlDynamic.dynamic_id
-			})
+			},callback: (data)=>{
+				this.setRidebarLoading(false);
+				this.isShowCtrl = false;
+				this.setDynamicLike({
+					index:this.dynamicIndex,
+					likes:data.list
+				})
+			}})
+		},
+		callFriend(discuss){
+			this.setShowEditor(discuss);
 		}
 	},
 	activated(){

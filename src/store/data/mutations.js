@@ -50,5 +50,19 @@ export default{
 	},
 	setDynamicIndex(state,data){
 		Vue.set(state,'dynamicIndex',data);
+	},
+	setChatType(state,data){
+		Vue.set(state,'chatType',data);
+	},
+	setFriend(state,data){
+		state.recordList.forEach((item,i)=>{//修改用户昵称同时修改消息记录
+			if(item.id == data.user_id){
+				Vue.set(state.recordList[i],'nickName',data.nickName);
+			}
+		})
+		Vue.set(state,'friend',data);
+	},
+	setGroup(state,data){
+		Vue.set(state,'group',data);
 	}
 }

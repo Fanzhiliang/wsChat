@@ -48,14 +48,14 @@
 
 		<div class="info-wrap" v-else>
 			<div class="info-inner clearfix">
-				<div class="start-upload" style="background-image:url(static/img/test-1.jpg)">
+				<div class="start-upload" :style="'background-image:url('+group.headPath+')'">
 					<img src="@/assets/img/upload.png" alt="" v-if="isEdit&&isLeader">
 					<input type="file" accept="image/*" class="hide" ref="head" @change="fileChange($event)">
 					<div class="mask" v-if="isEdit" @click="startUpload"></div>
 				</div>
-				<p class="nickname ellipsis" :title="group.name" v-if="!isEdit||!isLeader">{{group.name}}</p>
-				<p class="nickname ellipsis" :title="group.name" v-else>
-					<input type="text" class="name" v-model="group.name">
+				<p class="nickname ellipsis" :title="group.group_name" v-if="!isEdit||!isLeader">{{group.group_name}}</p>
+				<p class="nickname ellipsis" :title="group.group_name" v-else>
+					<input type="text" class="name" v-model="group.group_name">
 				</p>
 				<p class="nickname ellipsis account" :title="group.group_account">{{group.group_account}}</p>
 				
@@ -64,18 +64,18 @@
 				<div class="input-row">
 					<label for="nickame">群名片</label>
 					<p class="value" v-if="isEdit">
-						<input type="text" v-model="group.group_nickName">
+						<input type="text" v-model="stateUser.user_name">
 					</p>
 					<p class="value ellipsis" v-else>
-						{{group.group_nickName}}</span>
+						{{stateUser.user_name}}</span>
 					</p>
 				</div>
 
 				<div class="input-row sign">
 					<label for="">群介绍</label>
-					<p class="value ellipsis" :title="group.sign" v-if="!isEdit||!isLeader">{{group.sign}}</p>
+					<p class="value ellipsis" :title="group.info" v-if="!isEdit||!isLeader">{{group.info}}</p>
 					<p class="value ellipsis" v-else>
-						<input type="text" class="sign" v-model="group.sign">
+						<input type="text" class="sign" v-model="group.info">
 					</p>
 				</div>
 			</div>
@@ -85,7 +85,7 @@
 			</div>
 		</div>
 
-		<headSelecter :isShow.sync="isShowHead" :src.sync="headSrc" :head="$refs.head"/>
+		<headSelecter :isShow.sync="isShowHead" :src.sync="headSrc" :head="$refs.head" :result.sync="headResult"/>
 	</div>
 </template>
 
@@ -95,20 +95,24 @@ import headSelecter from '@/components/head-selecter';
 export default{
 	data(){
 		return{
+			group: {},
 			isEdit: false,
 			other: {},
 			headSrc: '',
+			headResult: '',
 			isShowList: false,
 			isShowHead: false,
 			isLeader: true,//是否是群主
-			isCtrl: false,
-			group:{
-				name: '弱智交流群',
-				group_nickName: '蚊子腿细也是肉',
-				group_account: '2281588099',
-				sign: '拥护党的纲领,遵守党的章程,履行党员义务,执行党的决定,严守党的纪律,保守党的秘密.'
-			}
+			isCtrl: false
 		}
+	},
+	computed:{
+		...mapState({
+			typeKeys:state=>state.data.typeKeys,
+			loginKey:state=>state.data.loginKey,
+			stateUser:state=>state.data.user,
+			stateGroup:state=>state.data.group
+		})
 	},
 	methods:{
 		...mapActions({
@@ -141,8 +145,10 @@ export default{
 			this.isEdit = false;
 		}
 	},
-	created(){
+	activated(){
+		this.group = this.stateGroup;
 		this.other = Object.assign({},this.group);
+		this.isLeader = this.group['user_id'] == this.stateUser['user_id'];
 	},
 	components:{
 		headSelecter

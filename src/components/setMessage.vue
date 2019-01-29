@@ -50,8 +50,21 @@ export default{
 			setShowBody: 'view/setShowBody',
 			setShowAudio: 'view/setShowAudio',
 			setShowAlert: 'view/setShowAlert',
-			setCtrlEnter: 'view/setCtrlEnter'
+			setCtrlEnter: 'view/setCtrlEnter',
+			showAlert: 'view/showAlert',
 		})
+	},
+	activated(){
+		setTimeout(()=>{
+			this.showAlert({
+				title: 'Hi，帅哥：',
+				body: '可以加你为好友吗？',
+				icon: 'http://www.test3.com/wsChat/resources/1546958176.jpg',
+				callback: ()=>{
+					console.log('click')
+				}
+			})
+		}, 2000)
 	}
 }
 </script>

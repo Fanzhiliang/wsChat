@@ -1,5 +1,9 @@
 import Vue from 'vue'
 
+let isWindowMin = false;
+window.addEventListener('blur', function(){isWindowMin = true});//当前页面失去焦点
+window.addEventListener('focus', function(){isWindowMin = false});//当前页面获得焦点
+
 export default{
 	setShowBody(state,value){
 		Vue.set(state,'isShowBody',value);
@@ -31,5 +35,15 @@ export default{
 	},
 	setRidebarLoading(state,value){
 		Vue.set(state,'sidebarLoading',value);
+	},
+	showAlert(state,{title,body,icon,callback}){
+		if(!state.isShowAlert || !isWindowMin){return;}
+		var notification = new Notification(title, {body,icon});
+		notification.onclick = function(){
+			if(typeof callback == 'function'){
+				callback();
+			}
+			window.focus();
+		}
 	}
 }

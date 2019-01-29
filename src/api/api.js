@@ -4,6 +4,25 @@ axios.defaults.headers = {"Content-Type": "application/x-www-form-urlencoded;cha
 
 const host = 'http://www.test3.com/wsChat/api/';
 // const host = 'http://ws.alcyh.com/api/';
+const qqKey = '7PNBZ-KQ4CG-5SQQE-IAANJ-G7GS6-6YF2O';//腾讯地图
+
+let jsonpPromise = (url,cbStr)=>{//axios自定义jsonp方法,cdStr是回调函数名
+	return new Promise((resolve)=>{
+		window[cbStr] = (res)=>{
+			if(res.status == 0){
+				let info = res.result.ad_info
+				resolve(info.province+info.city+info.district);
+			}else{
+				resolve('');
+			}
+		}
+		let _script = document.createElement('script');
+		_script.setAttribute('type','text/javascript');
+		_script.setAttribute('src',url);
+		document.getElementsByTagName('head')[0].appendChild(_script);
+		setTimeout(function(){document.getElementsByTagName('head')[0].removeChild(_script)},2000);
+	})
+}
 
 export const upload = async (files,user_id)=>{
 	let formDate = new FormData();
@@ -52,4 +71,8 @@ export const getIp = async ()=>{
 			resolve(false);
 		}
 	})
+}
+
+export const getAddressByQQMap = async ()=>{
+	return jsonpPromise('https://apis.map.qq.com/ws/location/v1/ip?output=jsonp&callback=jsonpPromiseCB&key='+qqKey,'jsonpPromiseCB');
 }
