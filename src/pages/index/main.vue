@@ -1,17 +1,19 @@
 <template>
 	<div :class="['main','chat',isOverM?'overM':'']">
-		<div class="sidebar" ref="sidebar" v-loading="sidebarLoading">
+		<div class="sidebar" ref="sidebar" v-loading2="sidebarLoading">
 			<div class="title" :style="barIndex==3?'text-align:center':''">
 				{{bottomBar[barIndex].name}}
 				<span class="iconfont icon-add add" v-if="barIndex==1" @click="isShowAdd=true"></span>
-				<span class="iconfont icon-search1 search" v-if="barIndex==1" @click="setShowBody('search')"></span>
+				<!-- <span class="iconfont icon-search1 search" v-if="barIndex==1" @click="setShowBody('search')"></span> -->
 				<span class="iconfont icon-sort sort" v-if="barIndex==0" @click="isShowToggle=!isShowToggle" title="操作"></span>
-				<span class="iconfont icon-user user" v-if="barIndex==2"></span>
+				<span class="iconfont icon-sort sort l" v-if="barIndex==1" @click="isShowToggle=!isShowToggle" title="操作"></span>
+				<span class="iconfont icon-user user" v-if="barIndex==2&&!isSelf" @click="isSelf=true" title="只看自己"></span>
+				<span class="iconfont icon-group group" v-if="barIndex==2&&isSelf" @click="isSelf=false" title="全部"></span>
 				<span class="iconfont icon-edit edit" v-if="barIndex==2" @click="setShowBody('publish')"></span>
 			</div>
 
 			<keep-alive>
-				<component :is="bottomBar[barIndex].is" :isShowToggle="isShowToggle" :groupIndex="groupIndex"></component>
+				<component :is="bottomBar[barIndex].is" :isShowToggle="isShowToggle" :groupIndex="groupIndex" :isSelf.sync="isSelf"></component>
 			</keep-alive>
 
 			<div class="ctrl-header clearfix" v-if="barIndex==1">
@@ -34,8 +36,8 @@
 			<div class="add-wrap" v-if="barIndex==1" v-show="isShowAdd" @click="isShowAdd=false">
 				<transition name="scale">
 					<div class="add-panel" @click.stop="" v-show="isShowAdd">
-						<a href="#"><span class="iconfont icon-addenvironment"></span>创建群聊</a>
-						<a href="#"><span class="iconfont icon-tianjiayonghu"></span>加好友/群</a>
+						<a href="#" @click="setShowBody('insertGroup')"><span class="iconfont icon-addenvironment"></span>创建群聊</a>
+						<a href="#" @click="setShowBody('search')"><span class="iconfont icon-search1"></span>搜索人/群</a>
 					</div>
 				</transition>
 			</div>
@@ -48,7 +50,6 @@
 					{{'@'+isShowEditor.name+':'}}
 				</span>
 			</div>
-
 		</div>
 
 		<div :class="['body',isShowBody?'on':'']">
@@ -73,6 +74,8 @@ import userInfo from '@/components/userInfo'
 import friendInfo from '@/components/friendInfo'
 import groupInfo from '@/components/groupInfo'
 import search from '@/components/search'
+import insertGroup from '@/components/insertGroup'
+
 export default{
 	data(){
 		return{
@@ -88,6 +91,7 @@ export default{
 			isOverM: false,
 			editor: {},
 			hasNewDynamic: false,//是否有新的动态
+			isSelf: false,//是否只看自己的动态
 		}
 	},
 	computed:{
@@ -150,32 +154,11 @@ export default{
 			}, 111);
 		},
 		publishMsg(){
-			// if(typeof this.typeKeys['insertDynamicMsg_success'] != 'function'){
-			// 	this.addTypeKeys({
-			// 		'insertDynamicMsg_success': (data)=>{
-			// 			this.dynamicList[this.dynamicIndex].discussList.push({
-			// 				name: this.user.user_name,
-			// 				content: this.editor.txt.html()
-			// 			})
-			// 			this.setShowEditor(false);
-			// 			this.setRidebarLoading(false);
-			// 		}
-			// 	})
-			// }
 			this.setRidebarLoading(true);
 			let callUserSpace = document.querySelectorAll("#editor-m p span");
 			if(callUserSpace && callUserSpace.length>0){
 				callUserSpace[0].style.display = 'none';//清空@留空
 			}
-			// this.send({
-			// 	type: 'insertDynamicMsg',
-			// 	loginKey: this.loginKey,
-			// 	dynamic_id: this.dynamicList[this.dynamicIndex]['dynamic_id'],
-			// 	content: this.editor.txt.html(),
-			// 	callUser_id: (()=>{
-			// 		return typeof this.isShowEditor.user_id!='undefined'?this.isShowEditor.user_id:undefined;
-			// 	})()
-			// })
 
 			this.send({data: {
 				type: 'insertDynamicMsg',
@@ -188,21 +171,25 @@ export default{
 			},callback: (data)=>{
 				this.dynamicList[this.dynamicIndex].discussList.push({
 					name: this.user.user_name,
-					content: this.editor.txt.html()
+					content: this.editor.txt.html(),
+					callUser: this.isShowEditor
 				})
 				this.setShowEditor(false);
 				this.setRidebarLoading(false);
 			}})
 		},
 		barClick(index){
+			this.isSelf = false;
+			this.isShowToggle = false;
+			this.setRidebarLoading(false);
 			if(index == 2 && this.barIndex==index){//如果重复点击动态图标，重新刷新动态列表
 				this.clearDynamicList();
 				this.setRidebarLoading(true);
-				this.send({
+				this.send({data: {
 					type: 'getDynamicList',
 					loginKey: this.loginKey,
 					pageNo: 1,pageSize: this.pageSize
-				})
+				}})
 			}
 			this.barIndex=index;
 		}
@@ -218,7 +205,8 @@ export default{
 		userInfo,
 		friendInfo,
 		groupInfo,
-		search
+		search,
+		insertGroup
 	},
 	mounted(){
 		this.$nextTick(()=>{
@@ -253,14 +241,17 @@ export default{
 			},true)
 		})
 		this.hasNewDynamic = this.user.hasNewDynamic==1 || this.user.hasNewDynamicMsg==1?true:false;//新动态或者新评论都显示红点
-		
-		if(typeof this.typeKeys['friend_insertDynamic'] != 'function'){
-			this.addTypeKeys({
-				'friend_insertDynamic': (data)=>{
-					this.hasNewDynamic = true;
-				}
-			})
-		}
+		this.addTypeKeys({
+			'friend_insertDynamic': (data)=>{
+				this.hasNewDynamic = true;
+			},
+			'apply_join_group': (data)=>{
+				this.barIndex = 0;
+			},
+			'apply_add_friend': (data)=>{
+				this.barIndex = 0;
+			}
+		})
 	}
 }
 </script>
@@ -346,13 +337,19 @@ export default{
 		font-size: 18px;
 		cursor: pointer;
 	}
-	.sidebar .title .sort,.sidebar .title .user,.sidebar .title .add{
+	.sidebar .title .sort,.sidebar .title .user,.sidebar .title .add,.sidebar .title .group{
 		position: absolute;
 		top: 0;
 		right: 10px;
 		height: 100%;
 		font-size: 18px;
 		cursor: pointer;
+	}
+	.sidebar .title .group{
+		font-size: 20px;
+	}
+	.sidebar .title .sort.l{
+		right: 40px;
 	}
 	.sidebar>:nth-child(2){
 		width: 100%;

@@ -41,6 +41,7 @@
 					</div>
 				</div>
 			</div>
+			<!-- <div class="getMore" v-if="dynamicList.length>0">加载更多中...</div> -->
 		</div>
 		<div class="dynamic-mask" v-if="isShowCtrl||isShowEditor"></div>
 		<div class="scrollBar" ref="bar"></div>
@@ -60,12 +61,14 @@
 import ScrollBar from '@/assets/js/ScrollBar'
 import {mapState,mapActions} from 'vuex'
 export default{
+	props: ['isSelf'],
 	data(){
 		return{
 			pageNo: 1,//当前页码
 			pageSize: 10,//一页有10条动态
 			bar: false,
-			isShowCtrl: false
+			isShowCtrl: false,
+			isEnd: false
 		}
 	},
 	computed:{
@@ -83,6 +86,13 @@ export default{
 			}else{
 				return false;
 			}
+		}
+	},
+	watch:{
+		isSelf(newValue){
+			this.pageNo = 0;
+			this.clearDynamicList();
+			this.getDynamicList();
 		}
 	},
 	methods:{
@@ -113,58 +123,33 @@ export default{
 			this.setDynamicIndex(index);
 		},
 		getDynamicList(){
-			// if(typeof this.typeKeys['getDynamicList_success'] != 'function'){
-			// 	this.addTypeKeys({
-			// 		'getDynamicList_success': (data)=>{
-			// 			this.setDynamicList({
-			// 				list: data.list,
-			// 				user_id: this.user.user_id
-			// 			});
-			// 			this.setRidebarLoading(false);
-			// 		}
-			// 	})
-			// }
 			this.setRidebarLoading(true);
-			// this.send({
-			// 	type: 'getDynamicList',
-			// 	loginKey: this.loginKey,
-			// 	pageNo: this.pageNo,
-			// 	pageSize: this.pageSize
-			// })
 
 			this.send({data: {
 				type: 'getDynamicList',
 				loginKey: this.loginKey,
 				pageNo: this.pageNo,
-				pageSize: this.pageSize
+				pageSize: this.pageSize,
+				is_self:this.isSelf
 			},callback: (data)=>{
-				this.setDynamicList({
-					list: data.list,
-					user_id: this.user.user_id
-				});
 				this.setRidebarLoading(false);
+				if(data.list.length>0){
+					this.setDynamicList({
+						list: data.list,
+						user_id: this.user.user_id
+					});
+				}else{
+					this.isEnd = true;
+					if(this.pageNo!=0){
+						this.$message({type: 'warning',message: '无更多动态'});
+					}
+				}
 			}})
 		},
 		delDynamic(dynamicId){
 			this.$Tip.showTip('确定要删除吗？',{
 				sure:()=>{
-					// if(typeof this.typeKeys['delDynamic_success'] != 'function'){
-					// 	this.addTypeKeys({
-					// 		'delDynamic_success': (data)=>{
-					// 			this.setRidebarLoading(false);
-					// 			this.clearDynamicList();
-					// 			this.$nextTick(()=>{
-					// 				this.getDynamicList();
-					// 			});
-					// 		}
-					// 	})
-					// }
 					this.setRidebarLoading(true);
-					// this.send({
-					// 	type: 'delDynamic',
-					// 	loginKey: this.loginKey,
-					// 	dynamic_id: dynamicId
-					// })
 
 					this.send({data: {
 						type: 'delDynamic',
@@ -181,24 +166,7 @@ export default{
 			})		
 		},
 		setLikeDynamic(){
-			// if(typeof this.typeKeys['setLikeDynamic_success'] != 'function'){
-			// 	this.addTypeKeys({
-			// 		'setLikeDynamic_success': (data)=>{
-			// 			this.setRidebarLoading(false);
-			// 			this.isShowCtrl = false;
-			// 			this.setDynamicLike({
-			// 				index:this.dynamicIndex,
-			// 				likes:data.list
-			// 			})
-			// 		}
-			// 	})
-			// }
 			this.setRidebarLoading(true);
-			// this.send({
-			// 	type: 'setLikeDynamic',
-			// 	loginKey: this.loginKey,
-			// 	dynamic_id: this.ctrlDynamic.dynamic_id
-			// })
 
 			this.send({data: {
 				type: 'setLikeDynamic',
@@ -218,6 +186,15 @@ export default{
 		}
 	},
 	activated(){
+		this.$refs.wrap.addEventListener('scroll',()=>{
+			if(this.$refs.wrap.scrollTop+this.$refs.wrap.clientHeight == this.$refs.wrap.scrollHeight){
+				if(!this.isEnd){
+					this.pageNo++;
+					this.getDynamicList();
+				}
+			}
+		})
+
 		this.clearDynamicList();
 		this.$nextTick(()=>{
 			this.getDynamicList();
@@ -235,6 +212,13 @@ export default{
 </script>
 
 <style scoped>
+	.getMore{
+		width: 100%;
+		font-size: 14px;
+		text-align: center;
+		height: 40px;
+		line-height: 40px;
+	}
 	.list-inner{
 		position: absolute;
 		left: 0;

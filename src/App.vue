@@ -1,7 +1,8 @@
 <template>
 	<div id="app" v-show="isWs">
 		<router-view v-if="isConnect"/>
-		<h1 class="connecting" v-loading="true" v-else>正在连接服务器...</h1>
+		<h1 class="connecting" v-loading2="true" v-else>正在连接服务器...</h1>
+		<audio src="http://pic.ibaotu.com/00/57/79/39J888piCmbF.mp3" style="display: none;"></audio>
 	</div>
 </template>
 
@@ -19,7 +20,8 @@ export default {
 		...mapState({
 			typeKeys:state=>state.data.typeKeys,
 			user:state=>state.data.user,
-			loginKey:state=>state.data.loginKey
+			loginKey:state=>state.data.loginKey,
+			groupList:state=>state.data.groupList,
 		})
 	},
 	methods:{
@@ -29,22 +31,13 @@ export default {
 			addTypeKeys: 'data/addTypeKeys',
 			setUser: 'data/setUser',
 			setWs: 'data/setWs',
-			send: 'data/send'
+			send: 'data/send',
+			showAlert: 'view/showAlert',
+			setGroupList: 'data/setGroupList',
+			setFriendList: 'data/setFriendList',
+			play: 'view/play'
 		}),
 		getUserByLoginKey(){
-			// if(typeof this.typeKeys['getUserByLoginKey_success'] != 'function'){
-			// 	this.addTypeKeys({
-			// 		'getUserByLoginKey_success': (data)=>{
-			// 			this.setUser(data.list[0]);
-			// 			this.setRidebarLoading(false);
-			// 		}
-			// 	})
-			// }
-			// this.send({
-			// 	type: 'getUserByLoginKey',
-			// 	loginKey: this.loginKey
-			// })
-
 			this.send({data: {
 				type: 'getUserByLoginKey',
 				loginKey: this.loginKey
@@ -74,15 +67,68 @@ export default {
 	created(){
 		if('WebSocket' in window){
 			let ws = new WebSocket('ws://127.0.0.1:8086');
-			//let ws = new WebSocket('ws://120.78.128.4:443');
+			// let ws = new WebSocket('ws://120.78.128.4:443');
 			ws.onmessage = (e)=>{
 				let data = JSON.parse(e.data);
 				console.log(JSON.parse(JSON.stringify(data)));
 				if(data.err_code == 0){
-					for(let key in this.typeKeys){
-						if(data.type == key && typeof this.typeKeys[key] == 'function'){
-							this.typeKeys[key](data);
-						}
+					//默认执行
+					switch (data.type) {
+						case 'friend_sendMsg'://好友发送消息给我
+						case 'sendFriendMsg_success'://我发送消息给好友
+						case 'group_sendMsg'://群有人发了消息
+						//case 'sendGroupMsg_success'://我向群发送消息//后台会通过广播通知全部成员，所以发送成功后不用在获得
+						case 'pass_join_group':
+						case 'pass_add_friend':
+							this.send({data: {type: 'getRecordList',loginKey: this.loginKey}})//重新获得消息记录
+							this.play();
+							break;
+						case 'readed_success':
+							this.send({data: {type: 'getRecordList',loginKey: this.loginKey}})
+							break;
+						case 'group_delete_me':
+							this.send({data: {type: 'getRecordList',loginKey: this.loginKey}})
+							this.showAlert({
+								title: '提示',
+								body: (data['from_group'].group_name+'群主' || '有人') + '把你踢出了群',
+								icon: data['from_group'].headPath||'./static/img/user-head.png',
+								callback: ()=>{}
+							})
+							break;
+						case 'apply_join_group':
+							this.send({data: {type: 'getRecordList',loginKey: this.loginKey}})
+							this.showAlert({
+								title: (data['from_user'].user_name || '有人') + '申请加入' + data['apply_group'].group_name,
+								body: data.content || '进群申请',
+								icon: data['from_user'].headPath||'./static/img/user-head.png',
+								callback: ()=>{}
+							})
+							break;
+						case 'apply_add_friend':
+							this.send({data: {type: 'getRecordList',loginKey: this.loginKey}})
+							this.showAlert({
+								title: (data['from_user'].user_name || '有人') + '想加你为好友',
+								body: data.content || '好友申请',
+								icon: data['from_user'].headPath||'./static/img/user-head.png',
+								callback: ()=>{}
+							})
+							break;
+						case 'apply_user_join_group':
+							this.send({data: {type: 'getRecordList',loginKey: this.loginKey}})
+							this.showAlert({
+								title: (data['from_user'].user_name || '有人') + '邀请你进'+data['from_group'].group_name,
+								body: '进群邀请',
+								icon: data['from_group'].headPath||'./static/img/user-head.png',
+								callback: ()=>{}
+							})
+							break;
+						case 'insertGroup_success':
+							this.getUserByLoginKey();
+							break;
+					}
+					//自定义执行
+					if(typeof this.typeKeys[data.type] == 'function'){
+						this.typeKeys[data.type](data);
 					}
 					//this.setRidebarLoading(false); 
 				}else{
@@ -98,6 +144,28 @@ export default {
 				this.checkLogin();
 				this.isConnect = true;
 				console.log('WebSocket连接成功!');
+				setInterval(()=>{
+					this.send({data:{type:'ping'}});
+				},120000)
+				this.addTypeKeys({
+					'pass_join_group': (data)=>{//申请加入成功
+						if(data.user){
+							this.setUser(data.user);
+						}
+						this.setGroupList(data.groupList);
+					},
+					'pass_add_friend': (data)=>{//申请好友成功
+						if(data.user){
+							this.setUser(data.user);
+						}
+						this.setFriendList(data.friendList);
+					},
+					'friend_delete_me': (data)=>{//被好友删除
+						if(data.user){
+							this.setUser(data.user);
+						}
+					}
+				})
 			}
 			ws.onerror = ()=>{
 				console.log('WebSocket出错!');

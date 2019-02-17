@@ -13,9 +13,9 @@
 					<span class="date">{{item.write_date_text}}</span>
 				</div>
 				<div class="right-ctrl">
-					<div class="setTop" @click="sortRecord(item)" v-if="item.sort==0">置顶</div>
-					<div class="setTop" @click="sortRecord(item)" v-else>取消置顶</div>
-					<div class="delete">删除</div>
+					<div class="setTop" @click="sortRecord(item)" v-if="(item.type=='friendMsg'||item.type=='groupMsg')&&item.sort==0">置顶</div>
+					<div class="setTop" @click="sortRecord(item)" v-if="(item.type=='friendMsg'||item.type=='groupMsg')&&item.sort>0">取消置顶</div>
+					<div :class="['delete',item.type!='friendMsg'&&item.type!='groupMsg'?'b':'']" @click="deleteRecord(item)">删除</div>
 				</div>
 			</div>
 		</div>
@@ -35,76 +35,110 @@ export default{
 	},
 	computed:{
 		...mapState({
-			typeKeys:state=>state.data.typeKeys,
 			loginKey:state=>state.data.loginKey,
 			recordList:state=>state.data.recordList,
 			friend:state=>state.data.friend,
-			group:state=>state.data.group
+			group:state=>state.data.group,
+			chatType:state=>state.data.chatType,
 		})
 	},
 	methods:{
 		...mapActions({
 			setShowBody: 'view/setShowBody',
 			setRidebarLoading: 'view/setRidebarLoading',
-			addTypeKeys: 'data/addTypeKeys',
 			setRecordList: 'data/setRecordList',
 			send: 'data/send',
 			setChatType: 'data/setChatType',
 			setFriend: 'data/setFriend',
-			setGroup: 'data/setGroup'
+			setGroup: 'data/setGroup',
+			setUser: 'data/setUser'
 		}),
 		clickItem(item){
-			if(item.type == 'friendMsg' && this.friend['user_id'] != item.id){//防止重复获取
-				this.setShowBody(false);
-				// if(typeof this.typeKeys['getUserInfoById_success'] != 'function'){
-				// 	this.addTypeKeys({
-				// 		'getUserInfoById_success': (data)=>{
-				// 			if(data.list.length==2){
-				// 				this.setFriend(Object.assign(data.list[0],{chatList: data.list[1]}));
-				// 			}
-				// 			this.setChatType('friend');
-				// 			this.setGroup({});//清空群信息
-				// 			this.setShowBody('chat');
-				// 		}
-				// 	})
-				// }
-				// this.send({type: 'getUserInfoById',loginKey: this.loginKey,user_id: item.id});
-
-				this.send({data: {
-					type: 'getUserInfoById',loginKey: this.loginKey,user_id: item.id
-				},callback: (data)=>{
-					if(data.list.length==2){
-						this.setFriend(Object.assign(data.list[0],{chatList: data.list[1]}));
-					}
-					this.setChatType('friend');
-					this.setGroup({});//清空群信息
+			this.setRidebarLoading(true);
+			if(item.type=='friendMsg'||item.type=='groupMsg'){
+				if(item.type == 'friendMsg' && (this.friend['user_id'] != item.id || this.chatType=='group')){//防止重复获取
+					this.setShowBody(false);
+					this.send({data: {
+						type: 'getUserInfoById',loginKey: this.loginKey,user_id: item.id
+					},callback: (data)=>{
+						this.setRidebarLoading(false);
+						if(data.list.length==2){
+							this.setFriend(Object.assign(data.list[0],{chatList: data.list[1]}));
+						}
+						this.setChatType('friend');
+						this.setGroup({});//清空群信息
+						this.setShowBody('chat');
+					}})
+				}else if(item.type == 'groupMsg' && this.group['group_id'] != item.id){//防止重复获取
+					this.setShowBody(false);
+					this.send({data: {
+						type: 'getGroupInfoById',loginKey: this.loginKey,group_id: item.id
+					},callback: (data)=>{
+						this.setRidebarLoading(false);
+						if(data.list.length==2){
+							this.setGroup(Object.assign(data.list[0],{chatList: data.list[1]}));
+						}
+						this.setChatType('group');
+						this.setFriend({});//清空好友信息
+						this.setShowBody('chat');
+					}})
+				}else{
 					this.setShowBody('chat');
-				}})
-			}else if(item.type == 'groupMsg' && this.group['group_id'] != item.id){//防止重复获取
-				this.setShowBody(false);
-				// if(typeof this.typeKeys['getGroupInfoById_success'] != 'function'){
-				// 	this.addTypeKeys({
-				// 		'getGroupInfoById_success': (data)=>{
-				// 			if(data.list.length==2){
-				// 				this.setGroup(Object.assign(data.list[0],{chatList: data.list[1]}));
-				// 			}
-				// 			this.setChatType('group');
-				// 			this.setFriend({});//清空好友信息
-				// 			this.setShowBody('chat');
-				// 		}
-				// 	})
-				// }
-				// this.send({type: 'getGroupInfoById',loginKey: this.loginKey,group_id: item.id});
-
+				}
+			}else{
+				if(item.type == 'applyAddFriend'){//好友申请
+					this.$Tip.showTip(item.creater+'想加你为好友,确定通过申请吗?',{sure:()=>{
+						this.send({data:{
+							type: 'passAddFriend',
+							loginKey: this.loginKey,
+							apply_id: item.apply_id
+						},callback:(data)=>{
+							this.setRidebarLoading(false);
+							this.setRecordList([]);
+							this.getRecord();
+							if(data.user){
+								this.setUser(data.user);
+							}
+							this.$message({type: 'success',message: '通过成功'});
+						}})
+					}})
+				}else if(item.type == 'applyJoinGroup'){//申请入群
+					this.$Tip.showTip(item.creater+item.name+',确定通过申请吗?',{sure:()=>{
+						this.send({data:{
+							type: 'passJoinGroup',
+							loginKey: this.loginKey,
+							apply_id: item.apply_id
+						},callback:(data)=>{
+							this.setRidebarLoading(false);
+							this.setRecordList([]);
+							this.getRecord();
+							this.$message({type: 'success',message: '通过成功'});
+						}})
+					}})
+				}else if(item.type == 'applyAddMember'){//邀请进群
+					this.$Tip.showTip('确定接受邀请吗?',{sure:()=>{
+						this.send({data:{
+							type: 'passAddMember',
+							loginKey: this.loginKey,
+							apply_id: item.apply_id
+						},callback:(data)=>{
+							this.setRidebarLoading(false);
+							this.setRecordList([]);
+							this.getRecord();
+							if(data.user){
+								this.setUser(data.user);
+							}
+							this.$message({type: 'success',message: '通过成功'});
+						}})
+					}})
+				}
+			}
+			if(item.is_check == 0){
 				this.send({data: {
-					type: 'getGroupInfoById',loginKey: this.loginKey,group_id: item.id
-				},callback: (data)=>{
-					if(data.list.length==2){
-						this.setGroup(Object.assign(data.list[0],{chatList: data.list[1]}));
-					}
-					this.setChatType('group');
-					this.setFriend({});//清空好友信息
-					this.setShowBody('chat');
+					type: 'readed',
+					record_id: item.record_id
+				},callback:(data)=>{
+
 				}})
 			}
 		},
@@ -125,20 +159,6 @@ export default{
 			})
 		},
 		getRecord(){
-			// if(typeof this.typeKeys['getRecordList_success'] != 'function'){
-			// 	this.addTypeKeys({
-			// 		'getRecordList_success': (data)=>{
-			// 			this.setRecordList(data.list);
-			// 			this.setRidebarLoading(false);
-			// 		}
-			// 	})
-			// }
-			// this.setRidebarLoading(true);
-			// this.send({
-			// 	type: 'getRecordList',
-			// 	loginKey: this.loginKey
-			// })
-
 			this.send({data: {
 				type: 'getRecordList',
 				loginKey: this.loginKey
@@ -148,22 +168,6 @@ export default{
 			}})
 		},
 		sortRecord(item){
-			// if(typeof this.typeKeys['sortRecord_success'] != 'function'){
-			// 	this.addTypeKeys({
-			// 		'sortRecord_success': (data)=>{
-			// 			this.setRecordList([]);
-			// 			this.getRecord();
-			// 		}
-			// 	})
-			// }
-			// this.send({
-			// 	type: 'sortRecord',
-			// 	record_id: item.record_id,
-			// 	loginKey: this.loginKey,
-			// 	tb_type: item.type,
-			// 	sort: item.sort==0?1:0
-			// })
-
 			this.send({data: {
 				type: 'sortRecord',
 				record_id: item.record_id,
@@ -174,6 +178,29 @@ export default{
 				this.setRecordList([]);
 				this.getRecord();
 			}})
+		},
+		deleteRecord(item){//删除消息
+			this.$Tip.showTip('确定要删除吗？',{sure:()=>{
+				if(item.type=='friendMsg'||item.type=='groupMsg'){
+					this.send({data: {
+						type: 'delRecord',
+						record_id: item.record_id,
+						loginKey: this.loginKey
+					},callback: (data)=>{
+						this.setRecordList([]);
+						this.getRecord();
+					}})
+				}else{
+					this.send({data: {
+						type: 'delApply',
+						apply_id: item.apply_id,
+						loginKey: this.loginKey
+					},callback: (data)=>{
+						this.setRecordList([]);
+						this.getRecord();
+					}})
+				}
+			}});
 		}
 	},
 	created(){
@@ -224,6 +251,9 @@ export default{
 	}
 	.right-ctrl .delete{
 		background-color: #FF3A31;
+	}
+	.right-ctrl .delete.b{
+		width: 140px;
 	}
 	.item{
 		color: #333;

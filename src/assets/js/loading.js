@@ -10,7 +10,7 @@ const getStyle = function(ele,attr){//获得样式
 }
 
 let style = document.createElement('style');
-style.appendChild(document.createTextNode('@keyframes v-loading{from {transform: rotate(180deg);}to {transform: rotate(540deg);}}.v-loading-mask{position: absolute;top: 0px;left: 0px;width: 100%;height: 100%;z-index: 99999;background-color: rgba(255, 255, 255, 0.8);}.v-loading-img{width: 40px;position: absolute;top: 40%;left: 50%;margin-top: -20px;margin-left: -20px;animation: v-loading 1s cubic-bezier(.17, .86, .73, .14) infinite;'));
+style.appendChild(document.createTextNode('@keyframes v-loading{from {transform: rotate(180deg);}to {transform: rotate(540deg);}}.v-loading-mask{position: absolute;top: 0px;left: 0px;width: 100%;height: 100%;z-index: 99999;/*background-color: rgba(255, 255, 255, 0.8);*/}.v-loading-img{width: 40px;position: absolute;top: 40%;left: 50%;margin-top: -20px;margin-left: -20px;animation: v-loading 1s cubic-bezier(.17, .86, .73, .14) infinite;'));
 document.querySelector('head').appendChild(style);
 
 let config = {
@@ -20,11 +20,11 @@ let config = {
 let cycleObj = false;
 let isTimeOut = false;//超时
 
-Vue.directive('loading',{
+Vue.directive('loading2',{
 	bind(el,binding){
 		let isLoading = binding.value;
 		let position = getStyle(el,'position');
-		el.style.position = position == 'absolute'?'absolute':'relative';
+		el.style.position = position == 'absolute' || position == 'fixed'? position : 'relative';
 		let mask = document.createElement('div');
 		mask.className = 'v-loading-mask';
 		mask.style.display = isLoading?'block':'none';

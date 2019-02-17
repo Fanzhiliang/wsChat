@@ -19,13 +19,16 @@ export default{
 	setShowAlert({commit},value){
 		commit('setShowAlert',value);
 	},
-	setCtrlEnter({commit},value){
-		commit('setCtrlEnter',value);
-	},
 	setRidebarLoading({commit},value){
 		commit('setRidebarLoading',value);
 	},
 	showAlert({commit},data){
 		commit('showAlert',data);
+	},
+	setReturnView({commit},value){
+		commit('setReturnView',value);
+	},
+	play({commit}){
+		commit('play');
 	}
 }

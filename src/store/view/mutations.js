@@ -1,8 +1,10 @@
 import Vue from 'vue'
 
-let isWindowMin = false;
-window.addEventListener('blur', function(){isWindowMin = true});//当前页面失去焦点
-window.addEventListener('focus', function(){isWindowMin = false});//当前页面获得焦点
+let isWindowMin = true;
+//暂时不判断
+// let isWindowMin = false;
+//window.addEventListener('blur', function(){isWindowMin = true});//当前页面失去焦点
+//window.addEventListener('focus', function(){isWindowMin = false});//当前页面获得焦点
 
 export default{
 	setShowBody(state,value){
@@ -17,6 +19,11 @@ export default{
 	setShowAudio(state,value){
 		Vue.set(state,'isShowAudio',value);
 	},
+	play(state){//提示声音
+		if(state.isShowAudio){
+			document.querySelector("audio").play();
+		}
+	},
 	setShowAlert(state,value){
 		if(value && typeof Notification == 'function'){
 			if(Notification.permission == 'granted'){
@@ -30,9 +37,6 @@ export default{
 			Vue.set(state,'isShowAlert',false);
 		}
 	},
-	setCtrlEnter(state,value){
-		Vue.set(state,'isCtrlEnter',value);
-	},
 	setRidebarLoading(state,value){
 		Vue.set(state,'sidebarLoading',value);
 	},
@@ -45,5 +49,8 @@ export default{
 			}
 			window.focus();
 		}
+	},
+	setReturnView(state,value){
+		Vue.set(state,'returnView',value);
 	}
 }

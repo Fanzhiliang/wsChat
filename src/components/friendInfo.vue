@@ -1,8 +1,8 @@
 <template>
-	<div class="userInfo" v-loading="isLoading">
+	<div class="userInfo" v-loading2="isLoading">
 		<div class="title">
-			<span class="iconfont icon-left" @click="setShowBody('chat')"></span>
-			好友信息
+			<span class="iconfont icon-left" @click="back"></span>
+			{{chatType=='group'?'成员信息':'好友信息'}}
 <!-- 			<span class="iconfont icon-edit" @click="isEdit=true" v-if="!isEdit"></span>
 			<span class="pub" @click="reset();isEdit=false;" v-else>取消</span> -->
 		</div>
@@ -11,14 +11,18 @@
 				<div class="start-upload" :style="'background-image:url('+(headResult||obj.headPath||'static/img/user-head.png')+')'">
 					<div class="mask" v-if="isEdit"></div>
 				</div>
-				<p class="nickname ellipsis" :title="obj.nickName" v-if="!isEdit">
-					{{obj.nickName}}
-					<span class="iconfont icon-edit" @click="isEdit=true" v-if="!isEdit"></span>
-				</p>
-				<p class="nickname" :title="obj.nickName" v-else>
-					<input type="text" class="name" v-model="obj.nickName">
-				</p>
-
+				<template v-if="chatType=='friend' && isMyFriend">
+					<p class="nickname ellipsis" :title="obj.nickName" v-if="!isEdit">
+						{{obj.nickName}}
+						<span class="iconfont icon-edit" @click="isEdit=true" v-if="!isEdit"></span>
+					</p>
+					<p class="nickname" :title="obj.nickName" v-else>
+						<input type="text" class="name" v-model="obj.nickName">
+					</p>
+				</template>
+				<template v-if="chatType=='group'">
+					<p class="nickname ellipsis" :title="obj.carte">群名片:{{obj.carte}}</p>
+				</template>
 				<div class="input-row">
 					<label for="">账号</label>
 					<p class="value ellipsis" :title="obj.user_account">{{'('+obj.user_name+')'+obj.user_account}}</p>
@@ -41,7 +45,7 @@
 
 				<div class="input-row">
 					<label for="">电话</label>
-					<p class="value ellipsis" :title="obj.phone">{{obj.phone}}</p>
+					<p class="value ellipsis" :title="obj.phone">{{obj.phone||'无'}}</p>
 				</div>
 
 				<div class="input-row">
@@ -51,12 +55,13 @@
 
 				<div class="input-row sign">
 					<label for="">签名</label>
-					<p class="value" :title="obj.sign">{{obj.sign}}</p>
+					<p class="value" :title="obj.sign">{{obj.sign||'无'}}</p>
 				</div>
 			</div>
 			<div class="info-buts" v-if="!isEdit">
-				<button @click="goChat" class="save">发消息</button>
-				<button @click="deleteFriend" class="reset">删除</button>
+				<button @click="applyAddFriend" class="save" v-if="!isMyFriend">加为好友</button>
+				<button class="save" v-if="isMyFriend" @click="setShowBody('chat')">发消息</button>
+				<button @click="deleteFriend" class="reset" v-if="isMyFriend">删除</button>
 			</div>
 			<div class="info-buts" v-else>
 				<button @click="save" class="save">保存</button>
@@ -84,11 +89,25 @@ export default{
 	},
 	computed:{
 		...mapState({
+			returnView:state=>state.view.returnView,
 			typeKeys:state=>state.data.typeKeys,
 			stateUser:state=>state.data.user,
 			loginKey:state=>state.data.loginKey,
 			friend:state=>state.data.friend,
-		})
+			chatType:state=>state.data.chatType,
+			friendList:state=>state.data.friendList,
+			recordList:state=>state.data.recordList,
+		}),
+		isMyFriend(){//检测是否是我的好友
+			if(!this.stateUser.friend_ids){return false;}
+			var list = this.stateUser.friend_ids.split(',');
+			for(var i = 0;i<list.length;i++){
+				if(this.friend.user_id == list[i]){
+					return true;
+				}
+			}
+			return false;
+		}
 	},
 	methods:{
 		...mapActions({
@@ -96,32 +115,56 @@ export default{
 			addTypeKeys: 'data/addTypeKeys',
 			setUser: 'data/setUser',
 			send: 'data/send',
-			setFriend: 'data/setFriend'
+			setFriend: 'data/setFriend',
+			setReturnView: 'view/setReturnView',
+			setFriendList: 'data/setFriendList',
+			setUser: 'data/setUser',
+			setRecordList: 'data/setRecordList',
 		}),
-		goChat(){
-
-		},
 		deleteFriend(){
+			this.$Tip.showTip('确定删除该好友吗？',{
+				sure:()=>{
+					this.send({data: {
+						type: 'deleteFriend',
+						loginKey: this.loginKey,
+						friend_id: this.obj.user_id
+					},callback: (data)=>{
+						//重新获得群列表
+						if(this.friendList.length>0){
+							let list1 = this.friendList[0].list.filter((item)=>{return item.user_id != this.obj.user_id});
+							let list2 = this.friendList[1].list.filter((item)=>{return item.user_id != this.obj.user_id});
+							this.setFriendList([list1,list2]);
+						}
+						//重新获得个人信息
+						let tempUser = Object.assign({},this.stateUser);
+						tempUser.friend_ids = tempUser.friend_ids.split(',').filter((item)=>{
+							return item != this.obj.user_id
+						}).join(',');
+						this.setUser(tempUser);
+						this.setFriend({});
+						this.setShowBody(false);
+					}})
+				}
+			});
+		},
+		applyAddFriend(){
+			this.$prompt('请输入验证信息(可为空)', '提示', {
+	          	confirmButtonText: '确定',cancelButtonText: '取消'
+	        }).then(({ value }) => {
+	          	this.send({data: {
+					type: 'applyAddFriend',
+					loginKey: this.loginKey,
+					target_id: this.obj.user_id,
+					write_date: Date.parse(new Date)/1000,
+					apply_content: value
+				},callback: (data)=>{
 
+				}})
+				this.$message({type: 'success',message: '成功发送申请，请等待对方审核'});
+	        });
 		},
 		save(){
-			// if(typeof this.typeKeys['setNickName_success'] != 'function'){
-			// 	this.addTypeKeys({
-			// 		'setNickName_success': (data)=>{
-			// 			this.isLoading = false;
-			// 			this.setFriend(this.obj);
-			// 			this.isEdit = false;
-			// 		}
-			// 	})
-			// }
 			this.isLoading = true;
-			// this.send({
-			// 	type: 'setNickName',
-			// 	loginKey: this.loginKey,
-			// 	friend_id: this.obj.user_id,
-			// 	nickName: this.obj.nickName
-			// });
-
 			this.send({data: {
 				type: 'setNickName',
 				loginKey: this.loginKey,
@@ -131,11 +174,20 @@ export default{
 				this.isLoading = false;
 				this.setFriend(this.obj);
 				this.isEdit = false;
+				this.send({data: {type: 'getRecordList',loginKey: this.loginKey}})
+				this.send({data: {type: 'getFriendList',loginKey: this.loginKey}})
 			}})
 		},
 		reset(){
 			this.obj = Object.assign({},this.other);
 			this.isEdit = false;
+		},
+		back(){
+			if(this.returnView !== ''){
+				this.setShowBody(this.returnView);
+			}else{
+				this.setShowBody('chat');
+			}
 		}
 	},
 	activated(){
@@ -145,6 +197,7 @@ export default{
 	deactivated(){
 		this.reset();
 		this.isEdit = false;
+		this.setReturnView(false);
 	}
 }
 </script>
@@ -270,6 +323,8 @@ export default{
 	width: 100%;
 	display: inline-block;
 	vertical-align: top;
+	height: 40px;
+	overflow: hidden;
 }
 .input-row .value .icon-edit{
 	margin-left: 10px;

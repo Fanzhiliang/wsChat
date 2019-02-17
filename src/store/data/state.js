@@ -1,4 +1,4 @@
-import {getCookie} from '../../assets/js/utils.js'
+import {setCookie,getCookie,delCookie} from '../../assets/js/utils.js'
 
 let data = {
 	loginKey: getCookie('loginKey')?getCookie('loginKey'):false,
@@ -13,6 +13,14 @@ let data = {
 	chatType: '',//聊天类型 friend group
 	friend: {},//选择的好友
 	group: {},//选择的群聊
+	keyword: '',//搜索关键字
+	searchList: {},//搜索列表
+	isSaveRecord: (function(){//是否保存登录记录
+		var result = localStorage.getItem('isSaveRecord')?localStorage.getItem('isSaveRecord'):false;
+		if(!result){
+			delCookie('loginKey');
+		}
+	})(),
 }
 
 export default data;

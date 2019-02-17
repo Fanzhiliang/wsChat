@@ -116,32 +116,8 @@ export default{
 			if(filesList.length>0){
 				imageSrcs = await upload(filesList,this.user.user_id);
 			}
-			// if(typeof this.typeKeys['insertDynamic_success'] != 'function'){
-			// 	this.addTypeKeys({
-			// 		'insertDynamic_success': (data)=>{
-			// 			this.editor.txt.clear();//清空编辑内容
-			// 			this.setShowBody(false);
-			// 			this.setRidebarLoading(true);
-			// 			this.clearDynamicList();//清空动态
-			// 			this.$nextTick(()=>{
-			// 				this.send({
-			// 					type: 'getDynamicList',
-			// 					loginKey: this.loginKey,
-			// 					pageNo: 1,pageSize: this.pageSize
-			// 				})
-			// 			})
-			// 		}
-			// 	})
-			// }
 
 			let address = await getAddressByQQMap();
-			// this.send({
-			// 	type: 'insertDynamic',
-			// 	loginKey: this.loginKey,
-			// 	content: this.editor.txt.html(),
-			// 	img_srcs: JSON.stringify(imageSrcs),
-			// 	address
-			// })
 			
 			this.send({data: {
 				type: 'insertDynamic',
@@ -155,11 +131,11 @@ export default{
 				this.setRidebarLoading(true);
 				this.clearDynamicList();//清空动态
 				this.$nextTick(()=>{
-					this.send({
+					this.send({data: {
 						type: 'getDynamicList',
 						loginKey: this.loginKey,
 						pageNo: 1,pageSize: this.pageSize
-					})
+					}})
 				})
 			}})
 		}

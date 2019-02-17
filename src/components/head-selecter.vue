@@ -1,5 +1,5 @@
 <template>
-	<div class="head-selecter" v-show="isShow" v-loading="isLoading">
+	<div class="head-selecter" v-show="isShow" v-loading2="isLoading">
 		<transition name="show">
 			<div class="main" v-show="isShow">
 				<div class="head">

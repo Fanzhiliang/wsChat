@@ -48,22 +48,8 @@ export default{
 			exitLogin: 'data/exitLogin'
 		}),
 		toggleStatus(status){
-			// if(typeof this.typeKeys['setStatus_success'] != 'function'){
-			// 	this.addTypeKeys({
-			// 		'setStatus_success': (data)=>{
-			// 			this.send({
-			// 				type: 'getUserByLoginKey',
-			// 				loginKey: this.loginKey
-			// 			})
-			// 		}
-			// 	})
-			// }
 			this.setRidebarLoading(true);
-			// this.send({
-			// 	type: 'setStatus',
-			// 	loginKey: this.loginKey,
-			// 	status: status
-			// })
+
 			this.isShowSelect = false;
 
 			this.send({data: {
@@ -71,10 +57,10 @@ export default{
 				loginKey: this.loginKey,
 				status: status
 			},callback: (data)=>{
-				this.send({
+				this.send({data: {
 					type: 'getUserByLoginKey',
 					loginKey: this.loginKey
-				})
+				}})
 			}})
 		},
 		exit(){

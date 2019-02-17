@@ -4,6 +4,6 @@ export default{
 	isShowEditor: false,
 	isShowAudio: true,
 	isShowAlert: typeof Notification == 'function' && Notification.permission == 'granted',
-	isCtrlEnter: false,
-	sidebarLoading: false,//右侧的loading
+	sidebarLoading: false,//右侧的loadingzz
+	returnView: ''//返回的组件
 }

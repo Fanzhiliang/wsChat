@@ -19,7 +19,7 @@ const that = {
 	// 	commit('send',data);
 	// },
 	send({commit},{data,callback}){
-		if(typeof state.typeKeys[data.type+'_success'] != 'function' && typeof callback == 'function'){
+		if(typeof callback == 'function'){
 			let temp = {};
 			temp[data.type+'_success'] = callback;
 			that.addTypeKeys({commit},temp)
@@ -35,7 +35,7 @@ const that = {
 			let text = null;
 			Array.prototype.forEach.call(document.querySelectorAll(".item p img"),function(oldNode){
 				if(oldNode.getAttribute('alt') != 'face'){
-					text = document.createTextNode('[ 图片 ]');
+					text = document.createTextNode('[图片]');
 					oldNode.parentNode.replaceChild(text, oldNode);
 				}
 			})
@@ -83,7 +83,16 @@ const that = {
 	},
 	setGroup({commit},data){
 		commit('setGroup',data);
-	}
+	},
+	setKeyword({commit},data){
+		commit('setKeyword',data);
+	},
+	setSearchList({commit},data){
+		commit('setSearchList',data);
+	},
+	setSaveRecord({commit},value){
+		commit('setSaveRecord',value);
+	},
 }
 
 export default that;

@@ -21,8 +21,8 @@
 			</div>
 
 			<div class="set-but">
-				按ctrl+Enter发送
-				<div :class="['slider-but',isCtrlEnter?'on':'']" @click="setCtrlEnter(!isCtrlEnter)">
+				保存登录记录
+				<div :class="['slider-but',isSaveRecord?'on':'']" @click="setSaveRecord(!isSaveRecord)">
 					<div class="move-obj"></div>
 				</div>
 			</div>
@@ -42,7 +42,7 @@ export default{
 		...mapState({
 			isShowAudio:state=>state.view.isShowAudio,
 			isShowAlert:state=>state.view.isShowAlert,
-			isCtrlEnter:state=>state.view.isCtrlEnter
+			isSaveRecord:state=>state.data.isSaveRecord
 		})
 	},
 	methods:{
@@ -50,21 +50,12 @@ export default{
 			setShowBody: 'view/setShowBody',
 			setShowAudio: 'view/setShowAudio',
 			setShowAlert: 'view/setShowAlert',
-			setCtrlEnter: 'view/setCtrlEnter',
+			setSaveRecord: 'data/setSaveRecord',
 			showAlert: 'view/showAlert',
 		})
 	},
 	activated(){
-		setTimeout(()=>{
-			this.showAlert({
-				title: 'Hi，帅哥：',
-				body: '可以加你为好友吗？',
-				icon: 'http://www.test3.com/wsChat/resources/1546958176.jpg',
-				callback: ()=>{
-					console.log('click')
-				}
-			})
-		}, 2000)
+		
 	}
 }
 </script>

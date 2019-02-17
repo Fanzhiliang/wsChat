@@ -1,5 +1,5 @@
 <template>
-	<div class="panel-wrap" v-loading="isLoading">
+	<div class="panel-wrap" v-loading2="isLoading">
 		<div class="panel-inner">
 			<h1 class="big-title">wsChat</h1>
 			<div class="panel">

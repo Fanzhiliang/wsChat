@@ -126,6 +126,7 @@
 	font-size: 14px;
 	cursor: pointer;
 	z-index: 99999;
+	outline: none;
 }
 .ctrl{
 	position: absolute;
@@ -163,6 +164,8 @@
 	width: 100%;
 	display: inline-block;
 	vertical-align: top;
+	height: 40px;
+	overflow: hidden;
 }
 .input-row .value .icon-edit{
 	margin-left: 10px;
@@ -171,7 +174,7 @@
 input{
 	border: 1px solid #999999;
 	border-radius: 3px;
-	padding: 0 5px;
+	padding: 1px 5px;
 }
 input.name{
 	width: 100%;
@@ -343,4 +346,18 @@ table .manager-icon{
 	.groupInfo.list .ctrl{
 		position: fixed;
 	}
+}
+
+.value-table tr .card{
+	display: none;
+	font-size: 20px;
+	line-height: 15px;
+}
+
+.value-table tr:hover .time-text{
+	display: none;
+}
+
+.value-table tr:hover .card{
+	display: inline-block;
 }

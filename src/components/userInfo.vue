@@ -1,5 +1,5 @@
 <template>
-	<div class="userInfo" v-loading="isLoading">
+	<div class="userInfo" v-loading2="isLoading">
 		<div class="title">
 			<span class="iconfont icon-left" @click="setShowBody(false)"></span>
 			用户信息
@@ -98,7 +98,6 @@ export default{
 	},
 	computed:{
 		...mapState({
-			typeKeys:state=>state.data.typeKeys,
 			stateUser:state=>state.data.user,
 			loginKey:state=>state.data.loginKey
 		})
@@ -106,7 +105,6 @@ export default{
 	methods:{
 		...mapActions({
 			setShowBody: 'view/setShowBody',
-			addTypeKeys: 'data/addTypeKeys',
 			setUser: 'data/setUser',
 			send: 'data/send'
 		}),
@@ -135,41 +133,25 @@ export default{
 				this.user.headPath = this.headResult;
 			}
 
-			// if(typeof this.typeKeys['updateUser_success'] != 'function'){
-			// 	this.addTypeKeys({
-			// 		'updateUser_success': (data)=>{
-			// 			this.setUser(data.list[0]);
-			// 			this.user = Object.assign({},data.list[0]);
-			// 			this.other = Object.assign({},this.user);
-			// 			this.isLoading = false;
-			// 		}
-			// 	})
-			// }
-
 			this.isLoading = true;
-			// this.send({
-			// 	type: 'updateUser',
-			// 	loginKey: this.loginKey,
-			// 	info: this.user
-			// })
-
+			
 			this.send({data: {
 				type: 'updateUser',
 				loginKey: this.loginKey,
-				info: this.user
+				info: Object.assign(this.user,{areaArray: JSON.stringify(this.user.areaArray)})
 			},callback: (data)=>{
 				this.setUser(data.list[0]);
 				this.user = Object.assign({},data.list[0]);
+				this.$set(this.user,'areaArray',JSON.parse(this.user.areaArray));
 				this.other = Object.assign({},this.user);
 				this.isLoading = false;
+				this.isEdit = false;
 			}})
-
-			this.other = Object.assign({},this.user);
-			this.isEdit = false;
 		}
 	},
 	activated(){
 		this.user = Object.assign({},this.stateUser);
+		this.$set(this.user,'areaArray',JSON.parse(this.stateUser.areaArray));
 		this.other = Object.assign({},this.user);
 	},
 	deactivated(){

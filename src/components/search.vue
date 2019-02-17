@@ -1,81 +1,51 @@
 <template>
 	<div class="search">
 		<div class="title">
-			<span class="iconfont icon-left" @click="setShowBody(false)"></span>
+			<span class="iconfont icon-left" @click="exit"></span>
 			<span class="title-main">搜索</span>
 		</div>
 		<div class="input-row">
 			<div class="input-inner">
 				<span class="iconfont icon-search1"></span>
-				<input type="text">
+				<input type="text" @input="input" v-model="keyword">
 			</div>
 		</div>
 		<div :class="['list-wrap',$isMobile?'mobile':'']">
 			<div class="list-inner">
 				<div class="list">
-					<div class="list-tile">搜索联系人</div>
-					<div class="rows">
-						<div class="item-row">
-							<img src="static/img/test-1.jpg" alt="">
-							<p class="name ellipsis">谢建华f32sad1f32as1df32as1df32sda1f32sd1f</p>
-							<p class="account ellipsis">1103023796</p>
-						</div>
-						<div class="item-row">
-							<img src="static/img/test-1.jpg" alt="">
-							<p class="name ellipsis">陈绮韵</p>
-							<p class="account ellipsis">1107159909</p>
+					<div class="list-tile" v-if="searchFriends.length>0">搜索用户</div>
+					<div class="rows" v-if="searchFriends.length>0">
+						<div class="item-row" v-for="item in searchFriends" @click="clickItem(item,'friend')">
+							<img :src="item.headPath" alt="">
+							<p class="name ellipsis">{{item.user_name}}</p>
+							<p class="account ellipsis">{{item.user_account}}</p>
 						</div>
 					</div>
 
-					<div class="list-tile">搜索群聊</div>
-					<div class="rows">
-						<div class="item-row">
-							<img src="static/img/test-1.jpg" alt="">
-							<p class="name ellipsis">弱智交流群</p>
-							<p class="account ellipsis">1103023796</p>
-						</div>
-						<div class="item-row">
-							<img src="static/img/test-1.jpg" alt="">
-							<p class="name ellipsis">本地交友群</p>
-							<p class="account ellipsis">11071599099</p>
+					<div class="list-tile" v-if="searchGroups.length>0">搜索群聊</div>
+					<div class="rows" v-if="searchGroups.length>0">
+						<div class="item-row" v-for="item in searchGroups" @click="clickItem(item,'group')">
+							<img :src="item.headPath" alt="">
+							<p class="name ellipsis">{{item.group_name}}</p>
+							<p class="account ellipsis">{{item.group_account}}</p>
 						</div>
 					</div>
 
-					<div class="list-tile">我的好友</div>
-					<div class="rows">
-						<div class="item-row">
-							<img src="static/img/test-1.jpg" alt="">
-							<p class="name ellipsis">谢建华f32sad1f32as1df32as1df32sda1f32sd1f</p>
-							<p class="account ellipsis">1103023796</p>
-						</div>
-						<div class="item-row">
-							<img src="static/img/test-1.jpg" alt="">
-							<p class="name ellipsis">陈绮韵</p>
-							<p class="account ellipsis">1107159909</p>
-						</div>
-						<div class="item-row">
-							<img src="static/img/test-1.jpg" alt="">
-							<p class="name ellipsis">谢建华f32sad1f32as1df32as1df32sda1f32sd1f</p>
-							<p class="account ellipsis">1103023796</p>
-						</div>
-						<div class="item-row">
-							<img src="static/img/test-1.jpg" alt="">
-							<p class="name ellipsis">陈绮韵</p>
-							<p class="account ellipsis">1107159909</p>
+					<div class="list-tile" v-if="myFriends.length>0">我的好友</div>
+					<div class="rows" v-if="myFriends.length>0">
+						<div class="item-row" v-for="item in myFriends" @click="clickItem(item,'friend')">
+							<img :src="item.headPath" alt="">
+							<p class="name ellipsis">{{item.nickName}}({{item.user_name}})</p>
+							<p class="account ellipsis">{{item.user_account}}</p>
 						</div>
 					</div>
 
-					<div class="list-tile">我的群聊</div>
-					<div class="rows">
-						<div class="item-row">
-							<img src="static/img/test-1.jpg" alt="">
-							<p class="name ellipsis">弱智交流群</p>
-							<p class="account ellipsis">1103023796</p>
-						</div>
-						<div class="item-row">
-							<img src="static/img/test-1.jpg" alt="">
-							<p class="name ellipsis">本地交友群</p>
-							<p class="account ellipsis">11071599099</p>
+					<div class="list-tile" v-if="myGroups.length>0">我的群聊</div>
+					<div class="rows" v-if="myGroups.length>0">
+						<div class="item-row" v-for="item in myGroups" @click="clickItem(item,'group')">
+							<img :src="item.headPath" alt="">
+							<p class="name ellipsis">{{item.group_name}}</p>
+							<p class="account ellipsis">{{item.group_account}}</p>
 						</div>
 					</div>
 						
@@ -88,11 +58,126 @@
 <script>
 import {mapState,mapActions} from 'vuex'
 export default{
-	methods:{
-		...mapActions({
-			setShowBody: 'view/setShowBody'
+	data(){
+		return{
+			keyword: '',
+			myFriends: [],
+			myGroups: [],
+			searchFriends: [],
+			searchGroups:[],
+			timeObj: null
+		}
+	},
+	computed:{
+		...mapState({
+			loginKey:state=>state.data.loginKey,
+			friendList:state=>state.data.friendList,
+			groupList:state=>state.data.groupList,
+			tempKeyword:state=>state.data.keyword,
+			searchList:state=>state.data.searchList,
+			friend:state=>state.data.friend,
+			group:state=>state.data.group,
+			user:state=>state.data.user,
+			chatType:state=>state.data.chatType,
 		})
 	},
+	methods:{
+		...mapActions({
+			setShowBody: 'view/setShowBody',
+			send: 'data/send',
+			setChatType: 'data/setChatType',
+			setFriend: 'data/setFriend',
+			setGroup: 'data/setGroup',
+			setReturnView: 'view/setReturnView',
+			setKeyword: 'data/setKeyword',
+			setSearchList: 'data/setSearchList',
+		}),
+		search(){
+			if(this.keyword){
+				// 前端搜索
+				if(this.friendList.length>0){
+					let list = this.friendList[0].list.filter((item)=>{//我的好友
+						return item.user_account.includes(this.keyword) || item.user_name.includes(this.keyword) || item.nickName.includes(this.keyword);
+					})
+					this.myFriends = list;
+				}
+				if(this.groupList.length>0){
+					let list = this.groupList.filter((item)=>{//我的群聊
+						return item.group_account.includes(this.keyword) || item.group_name.includes(this.keyword);
+					})
+					this.myGroups = list;
+				}
+				// 后端搜索
+				this.send({data: {
+					type: 'search',
+					keyword: this.keyword
+				},callback: (data)=>{
+					this.searchFriends = data.list[0].filter((item)=>{
+						return this.myFriends.filter((it)=>{return it.user_id==item.user_id})<=0&&item.user_id!=this.user.user_id;
+					})
+					this.searchGroups = data.list[1].filter((item)=>{
+						return this.myGroups.filter((it)=>{return it.group_id==item.group_id})<=0&&item.user_id!=this.user.user_id;
+					})
+					this.setSearchList(this.$data);
+				}})
+			}else{
+				this.reset();
+			}
+		},
+		input(){
+			this.setKeyword(this.keyword);
+			clearTimeout(this.timeObj);
+			this.timeObj = setTimeout(()=>{
+				this.search();
+			},500)
+		},
+		clickItem(item,type){
+			if(type == 'friend' && (this.friend['user_id'] != item.user_id || this.chatType=='group')){//防止重复获取
+				this.send({data: {
+					type: 'getUserInfoById',loginKey: this.loginKey,user_id: item.user_id
+				},callback: (data)=>{
+					if(data.list.length==2){
+						this.setFriend(Object.assign(data.list[0],{chatList: data.list[1]}));
+					}
+					this.setChatType('friend');
+					this.setGroup({});//清空群信息
+					this.setReturnView('search');
+					this.setShowBody('friendInfo');
+				}})
+			}else if(type == 'group' && this.group['group_id'] != item.group_id){//防止重复获取
+				this.send({data: {
+					type: 'getGroupInfoById',loginKey: this.loginKey,group_id: item.group_id
+				},callback: (data)=>{
+					if(data.list.length==2){
+						this.setGroup(Object.assign(data.list[0],{chatList: data.list[1]}));
+					}
+					this.setChatType('group');
+					this.setFriend({});//清空好友信息
+					this.setReturnView('search');
+					this.setShowBody('groupInfo');
+				}})
+			}
+		},
+		reset(){
+			this.myFriends = [];
+			this.myGroups = [];
+			this.searchFriends = [];
+			this.searchGroups = [];
+			this.setSearchList({});
+		},
+		exit(){
+			this.reset();
+			this.setKeyword('');
+			this.setShowBody(false);
+		}
+	},
+	activated(){
+		this.keyword = this.tempKeyword;
+		this.myFriends = this.searchList.myFriends?this.searchList.myFriends:[];
+		this.myGroups = this.searchList.myGroups?this.searchList.myGroups:[];
+		this.searchFriends = this.searchList.searchFriends?this.searchList.searchFriends:[];
+		this.searchGroups = this.searchList.searchGroups?this.searchList.searchGroups:[];
+	}
 }
 </script>
 

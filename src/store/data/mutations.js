@@ -64,5 +64,20 @@ export default{
 	},
 	setGroup(state,data){
 		Vue.set(state,'group',data);
-	}
+	},
+	setKeyword(state,data){
+		Vue.set(state,'keyword',data);
+	},
+	setSearchList(state,data){
+		Vue.set(state,'searchList',data);
+	},
+	setSaveRecord(state,value){
+		if(value){
+			setCookie('loginKey',state.user.loginKey,1);
+		}else{
+			delCookie('loginKey');
+		}
+		Vue.set(state,'isSaveRecord',value);
+		localStorage.setItem('isSaveRecord', value);
+	},
 }

@@ -11,6 +11,8 @@ import E from 'wangeditor'
 import {UA,getStyle} from './assets/js/utils.js'
 import Tip from './assets/js/Tip.js'
 import loading from './assets/js/loading.js'
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
 
 Vue.config.productionTip = false
 
@@ -18,6 +20,8 @@ Vue.prototype.$isMobile = isMobile;
 Vue.prototype.$E = E;
 Vue.prototype.$UA = UA;
 Vue.prototype.$Tip = Tip;
+
+Vue.use(ElementUI)
 
 /* eslint-disable no-new */
 new Vue({

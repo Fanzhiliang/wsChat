@@ -9,9 +9,13 @@
 		<div :class="['discuss-wrap',$isMobile?'mobile':'']" ref="wrap" @click="isOver=false">
 			<div class="discuss-inner" ref="inner" :style="{opacity:isShowList?1:0}">
 
+				<div class="getMore" v-if="obj.chatList&&obj.chatList.length>0">
+					<a href="" @click.prevent="getMoreChatList">查看更多消息</a>
+				</div>
+
 				<div :class="['discuss-row',item.isMy?'my':'']" v-for="item in obj.chatList">
-					<img :src="item.isMy?user.headPath:obj.headPath" alt="" class="head">
-					<p class="name"><span class="ellipsis">{{item.isMy? user.user_name : obj.nickName||obj.user_name||obj.group_name}}</span></p>
+					<img :src="item.isMy?user.headPath:(isGroup ? item.headPath : obj.headPath)" @click="headClick(item)" alt="" class="head">
+					<p class="name"><span class="ellipsis">{{item.isMy? obj.carte||user.user_name : item.carte||obj.nickName||obj.user_name}}</span></p>
 					<div class="content" v-html="item.content"></div>
 					<span class="date">{{item.write_date}}</span>
 				</div>
@@ -22,7 +26,7 @@
 		<div class="bottom-editor c">
 			<div id="toolbar"></div>
 			<div id="editor" @keydown="editorChange" @click.stop="editorChange"></div>
-			<input type="file" class="hide" id="image" accept="image/*" @change="fileChange($event)">
+			<input type="file" class="hide" id="image" ref="image" accept="image/*" @change="fileChange($event)">
 			<button id="send" @click="sendMsg">发送</button>
 		</div>
 		<div class="image-wrap" v-if="imageSrc">
@@ -32,7 +36,7 @@
 				</div>
 				<p>
 					确定要发送吗？
-					<button class="sure" @click="send">确认</button>
+					<button class="sure" @click="sendImage">确认</button>
 					<button class="cancel" @click="cancelImage">取消</button>
 				</p>
 			</div>
@@ -43,6 +47,7 @@
 <script>
 import ScrollBar from '@/assets/js/ScrollBar'
 import {mapState,mapActions} from 'vuex'
+import {upload} from '@/api/api.js'
 export default{
 	data(){
 		return{
@@ -53,12 +58,15 @@ export default{
 			imageSrc: '',
 			isGroup: true,//是否是群聊
 			isShowList: false,//显示聊天
+			content: '',//发送的内容
+			repeat: false,
+			pageNo: 1
 		}
 	},
 	computed:{
 		...mapState({
+			returnView:state=>state.view.returnView,
 			isShowAudio:state=>state.view.isShowAudio,
-			isCtrlEnter:state=>state.view.isCtrlEnter,
 			chatType:state=>state.data.chatType,
 			friend:state=>state.data.friend,
 			group:state=>state.data.group,
@@ -73,7 +81,8 @@ export default{
 			send: 'data/send',
 			addTypeKeys: 'data/addTypeKeys',
 			setFriend: 'data/setFriend',
-			setGroup: 'data/setGroup'
+			setGroup: 'data/setGroup',
+			setReturnView: 'view/setReturnView',
 		}),
 		fileChange(e){
         	let file = e.target.files[0];
@@ -113,24 +122,92 @@ export default{
 				this.isShowList = true;
 			})
 		},
+		async sendImage(){//发送图片
+			let imageSrcs = [];
+			if(this.$refs.image.files.length>0){
+				imageSrcs = await upload([this.$refs.image.files[0]],this.user.user_id);
+			}
+			if(imageSrcs.length > 0){
+				this.content = '<a href="'+imageSrcs[0]+'" target="_blank" class="img"><img src="'+imageSrcs[0]+'" alt="[图片]"></a>';
+				this.sendMsg();
+			}
+		},
 		cancelImage(){
 			this.imageSrc = '';
 		},
-		sendMsg(){
-			this.goBottom();
+		refresh(data){
+			this.content = '';
+			this.cancelImage();
+			this.obj.chatList.push(data.list[0]);//更新数据
+			this.$set(this.obj,'chatList',this.obj.chatList);
+			if(this.chatType == 'friend'){
+				this.setFriend(this.obj);
+			}else if(this.chatType == 'group'){
+				this.setGroup(this.obj);
+			}
+			this.editorChange();
+			this.$nextTick(()=>{this.setBar()});
+		},
+		sendMsg(){//发送消息、表情
+			if(this.content == ''){
+				this.content = this.editor.txt.html();
+			}
+			if(!this.editor.txt.text() && !this.content.includes('face') && !this.content.includes('[图片]')){
+				this.$Tip.showTip('发送的内容不能为空!',{time:2});
+			}else{
+				if(this.chatType == 'friend'){//与好友聊天
+					this.send({data: {
+						type: 'sendFriendMsg',
+						loginKey: this.loginKey,
+						to_user: this.obj.user_id,
+						content: this.content,
+						write_date: Date.parse(new Date())/1000
+					},callback:(data)=>{
+						this.editor.txt.clear();//清空
+						this.refresh(data);
+					}})
+				}else if(this.chatType == 'group'){//群聊
+					this.send({data: {
+						type: 'sendGroupMsg',
+						loginKey: this.loginKey,
+						to_group: this.obj.group_id,
+						content: this.content,
+						write_date: Date.parse(new Date())/1000
+					},callback:(data)=>{
+						this.editor.txt.clear();//清空
+						this.refresh(data);
+					}})
+				}
+			}
 		},
 		left(){
-			this.setShowBody(false);
-			this.setFriend({});
-			this.setGroup({});
-		}
-	},
-	created(){
-		this.obj = this.chatType == 'group' ? this.group : this.friend ;
-		this.isGroup = this.chatType == 'group';
-	},
-	mounted(){
-		this.$nextTick(()=>{
+			if(this.returnView!==''){
+				this.setShowBody(this.returnView);
+			}else{
+				this.setShowBody(false);
+			}
+		},
+		headClick(item){
+			if(item.isMy){//点击的是自己的头像
+				return;
+			}
+			if(this.isGroup){//点击的不是自己的头像
+				this.send({data: {
+					type: 'getUserInfoById',loginKey: this.loginKey,user_id: item.user_id
+				},callback: (data)=>{
+					if(data.list.length==2){
+						this.setFriend(Object.assign(data.list[0],{
+							chatList: data.list[1],
+							carte: item.carte
+						}));
+						this.setShowBody('friendInfo');
+					}
+				}})
+			}else{
+				this.setShowBody('friendInfo');
+			}
+		},
+		setBar(){
 			if(!this.$isMobile){//自定义滚动条
 				setTimeout(()=>{
 					this.bar = new ScrollBar(this.$refs.wrap,this.$refs.inner,this.$refs.bar);
@@ -140,6 +217,62 @@ export default{
 					this.goBottom();
 				}, 555)
 			}
+		},
+		getMoreCallback(data){
+			if(data.list&&data.list.length>0){
+				this.$set(this.obj,'chatList',data.list.concat(this.obj.chatList));
+				if(!this.$isMobile){//自定义滚动条
+					setTimeout(()=>{
+						this.bar = new ScrollBar(this.$refs.wrap,this.$refs.inner,this.$refs.bar);
+						if(typeof this.bar.setBarHeight == 'function'){
+							window.addEventListener('resize',this.bar.setBarHeight);
+						}
+					}, 555)
+				}
+			}else{
+				this.$message({type: 'warning',message: '无更多消息'});
+			}
+		},
+		getMoreChatList(){
+			this.pageNo++;
+			if(this.chatType == 'friend'){
+				this.send({data: {
+					type: 'getMoreFriendMsg',
+					loginKey: this.loginKey,
+					pageNo: this.pageNo,
+					user_id: this.obj.user_id
+				},callback: this.getMoreCallback})
+			}else if(this.chatType == 'group'){
+				this.send({data: {
+					type: 'getMoreGroupMsg',
+					loginKey: this.loginKey,
+					pageNo: this.pageNo,
+					group_id: this.obj.group_id
+				},callback: this.getMoreCallback})
+			}
+		}
+	},
+	created(){
+		this.obj = this.chatType == 'group' ? this.group : this.friend ;
+		this.isGroup = this.chatType == 'group';
+		this.addTypeKeys({
+			'friend_sendMsg': (data)=>{
+				if(data.to_user = this.obj.user_id){
+					this.refresh(data);
+				}
+			}
+		})
+		this.addTypeKeys({
+			'group_sendMsg': (data)=>{
+				if(data.to_group = this.obj.group_id && data.from_user != this.user.user_id){
+					this.refresh(data);
+				}
+			}
+		})
+	},
+	mounted(){
+		this.$nextTick(()=>{
+			this.setBar();
 			//生成富文本编辑器
 			this.editor = new this.$E('#toolbar','#editor');
 			this.editor.customConfig.menus = ['emoticon','image'];
@@ -177,6 +310,11 @@ export default{
 				this.goBottom();
 			}
 		})
+	},
+	deactivated(){
+		this.setReturnView('');
+		this.setFriend({});
+		this.setGroup({});
 	}
 }
 </script>
@@ -250,6 +388,10 @@ export default{
 	left: 10px;
 	top: 15px;
 	border-radius: 50%;
+	cursor: pointer;
+}
+.discuss-row.my .head{
+	cursor: default;
 }
 .discuss-row .name{
 	font-size: 12px;
@@ -434,5 +576,11 @@ export default{
 	position: absolute;
 	right: -10px;
 	top: 10px;
+}
+.getMore{
+	text-align: center;
+	color: #4EA9E9;
+	font-size: 12px;
+	margin: 10px 0 5px 0;
 }
 </style>
