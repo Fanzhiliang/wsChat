@@ -52,5 +52,8 @@ export default{
 	},
 	setReturnView(state,value){
 		Vue.set(state,'returnView',value);
+	},
+	setGlobalLoading(state,value){
+		Vue.set(state,'isGlobalLoading',value);
 	}
 }

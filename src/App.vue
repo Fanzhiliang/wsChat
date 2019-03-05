@@ -1,6 +1,9 @@
 <template>
 	<div id="app" v-show="isWs">
-		<router-view v-if="isConnect"/>
+		<template v-if="isConnect">
+			<router-view/>
+			<div v-loading2="isGlobalLoading" v-if="isGlobalLoading" class="global-mask"></div>
+		</template>
 		<h1 class="connecting" v-loading2="true" v-else>正在连接服务器...</h1>
 		<audio src="http://pic.ibaotu.com/00/57/79/39J888piCmbF.mp3" style="display: none;"></audio>
 	</div>
@@ -22,6 +25,7 @@ export default {
 			user:state=>state.data.user,
 			loginKey:state=>state.data.loginKey,
 			groupList:state=>state.data.groupList,
+			isGlobalLoading:state=>state.view.isGlobalLoading,
 		})
 	},
 	methods:{
@@ -206,5 +210,13 @@ h1.connecting{
 }
 h1.connecting .v-loading-mask{
 	top: -50px;
+}
+.global-mask{
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 999999999999;
 }
 </style>

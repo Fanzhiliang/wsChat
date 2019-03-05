@@ -2,8 +2,8 @@ import axios from 'axios'
 import Qs from 'qs'
 axios.defaults.headers = {"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"};
 
-const host = 'http://www.test3.com/wsChat/api/';
-// const host = 'http://ws.alcyh.com/api/';
+// const host = 'http://www.test3.com/wsChat/api/';
+const host = 'http://ws.alcyh.com/api/';
 const qqKey = '7PNBZ-KQ4CG-5SQQE-IAANJ-G7GS6-6YF2O';//腾讯地图
 
 let jsonpPromise = (url,cbStr)=>{//axios自定义jsonp方法,cdStr是回调函数名

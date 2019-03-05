@@ -186,6 +186,7 @@ export default{
 		}
 	},
 	activated(){
+		this.pageNo = 1;
 		this.$refs.wrap.addEventListener('scroll',()=>{
 			if(this.$refs.wrap.scrollTop+this.$refs.wrap.clientHeight == this.$refs.wrap.scrollHeight){
 				if(!this.isEnd){

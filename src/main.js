@@ -13,6 +13,9 @@ import Tip from './assets/js/Tip.js'
 import loading from './assets/js/loading.js'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+import preview from 'vue-photo-preview'
+import 'vue-photo-preview/dist/skin.css'
+
 
 Vue.config.productionTip = false
 
@@ -22,6 +25,7 @@ Vue.prototype.$UA = UA;
 Vue.prototype.$Tip = Tip;
 
 Vue.use(ElementUI)
+Vue.use(preview)
 
 /* eslint-disable no-new */
 new Vue({

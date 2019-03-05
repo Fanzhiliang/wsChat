@@ -30,5 +30,8 @@ export default{
 	},
 	play({commit}){
 		commit('play');
+	},
+	setGlobalLoading({commit},value){
+		commit('setGlobalLoading',value);
 	}
 }

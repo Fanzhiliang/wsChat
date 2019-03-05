@@ -178,7 +178,6 @@ export default{
 			this.setBarHeight();
 		},
 		getFriendList(){
-			this.setRidebarLoading(true);
 			this.send({data: {
 				type: 'getFriendList',
 				loginKey: this.loginKey
@@ -194,7 +193,6 @@ export default{
 			}})
 		},
 		getGroupList(){
-			this.setRidebarLoading(true);
 			this.send({data: {
 				type: 'getGroupList',
 				loginKey: this.loginKey
@@ -205,6 +203,7 @@ export default{
 		}
 	},
 	activated(){
+		this.setRidebarLoading(true);
 		this.getFriendList();
 		this.getGroupList();
 	},

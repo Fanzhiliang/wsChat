@@ -198,11 +198,14 @@ export default{
 				}})
 			}
 
+			let tempGroup = Object.assign({},this.group)
+			tempGroup.chatList = [];
+
 			if(this.isLeader){//如果是群主
 				this.send({data: {//修改群基本信息
 					type: 'updateGroup',
 					loginKey: this.loginKey,
-					info: this.group
+					info: tempGroup
 				},callback: (data)=>{
 					this.setGroup(data.list[0]);
 					this.group = Object.assign({},data.list[0]);
@@ -215,7 +218,7 @@ export default{
 						loginKey: this.loginKey
 					}})
 				}})
-			}
+			}	
 		},
 		getGroupMember(){//获得群成员
 			this.send({data: {//修改群基本信息
