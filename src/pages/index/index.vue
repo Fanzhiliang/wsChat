@@ -1,22 +1,24 @@
 <template>
-	<div class="index" :style="indexStyle">
-		<div class="inner">
-			<div class="header"></div>
+	<div class="index">
+		<div class="index-bg" :style="indexStyle">
+			<div class="inner">
+				<div class="header"></div>
 
-			<v-main/>
+				<v-main/>
 
-			<div class="footer">
-				<div class="bg-ctrl">
-					<span class="iconfont icon-cc-arrow-left-circle" @click="prevBg"></span>
-					<span class="iconfont icon-cc-arrow-right-circle" @click="nextBg"></span>
-					<span class="iconfont icon-image" title="查看背景" @click="showBg"></span>
-					<span class="iconfont icon-file" title="上传背景" @click="showUpload"></span>
-					<input type="file" id="bgFile" accept="image/*" @change="startUpload($event)">
-					<img v-for="item,index in bgImgUrls" :src="item" :data-index="index" class="source" preview="0">
-				</div>
-				<div class="bg-AD" v-if="isShowBgAD">
-					<span class="iconfont icon-online" title="选为背景" @click="selectBg"></span>
-					<span class="iconfont icon-offline" title="删除" @click="deleteBg"></span>
+				<div class="footer">
+					<div class="bg-ctrl">
+						<span class="iconfont icon-cc-arrow-left-circle" @click="prevBg"></span>
+						<span class="iconfont icon-cc-arrow-right-circle" @click="nextBg"></span>
+						<span class="iconfont icon-image" title="查看背景" @click="showBg"></span>
+						<span class="iconfont icon-file" title="上传背景" @click="showUpload"></span>
+						<input type="file" id="bgFile" accept="image/*" @change="startUpload($event)">
+						<img v-for="item,index in bgImgUrls" :src="item" :data-index="index" class="source" preview="0">
+					</div>
+					<div class="bg-AD" v-if="isShowBgAD">
+						<span class="iconfont icon-online" title="选为背景" @click="selectBg"></span>
+						<span class="iconfont icon-offline" title="删除" @click="deleteBg"></span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -60,7 +62,7 @@ export default{
 		}),
 		setBgIndex(val){
 			this.bgIndex = val;
-			setCookie('bgIndex',this.bgIndex,1);
+			setCookie('bgIndex',this.bgIndex,31);
 		},
 		resetBgImgUrls(){//重置背景
 			this.bgIndex = 0;//这里不要用setBgIndex
@@ -222,5 +224,9 @@ export default{
 	cursor: pointer;
 	font-size: 20px;
 	margin-right: 20px;
+}
+.index-bg{
+	width: 100%;
+	height: 100%;
 }
 </style>

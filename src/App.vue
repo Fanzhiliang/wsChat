@@ -5,7 +5,7 @@
 			<div v-loading2="isGlobalLoading" v-if="isGlobalLoading" class="global-mask"></div>
 		</template>
 		<h1 class="connecting" v-loading2="true" v-else>正在连接服务器...</h1>
-		<audio src="http://pic.ibaotu.com/00/57/79/39J888piCmbF.mp3" style="display: none;"></audio>
+		<audio src="/static/data/tip.mp3" style="display: none;"></audio>
 	</div>
 </template>
 

@@ -46,6 +46,7 @@ export default{
 		...mapActions({
 			setShowBody: 'view/setShowBody',
 			setRidebarLoading: 'view/setRidebarLoading',
+			setGlobalLoading: 'view/setGlobalLoading',
 			setRecordList: 'data/setRecordList',
 			send: 'data/send',
 			setChatType: 'data/setChatType',
@@ -54,14 +55,14 @@ export default{
 			setUser: 'data/setUser'
 		}),
 		clickItem(item){
-			this.setRidebarLoading(true);
+			this.setGlobalLoading(true);
 			if(item.type=='friendMsg'||item.type=='groupMsg'){
 				if(item.type == 'friendMsg' && (this.friend['user_id'] != item.id || this.chatType=='group')){//防止重复获取
 					this.setShowBody(false);
 					this.send({data: {
 						type: 'getUserInfoById',loginKey: this.loginKey,user_id: item.id
 					},callback: (data)=>{
-						this.setRidebarLoading(false);
+						this.setGlobalLoading(false);
 						if(data.list.length==2){
 							this.setFriend(Object.assign(data.list[0],{chatList: data.list[1]}));
 						}
@@ -74,7 +75,7 @@ export default{
 					this.send({data: {
 						type: 'getGroupInfoById',loginKey: this.loginKey,group_id: item.id
 					},callback: (data)=>{
-						this.setRidebarLoading(false);
+						this.setGlobalLoading(false);
 						if(data.list.length==2){
 							this.setGroup(Object.assign(data.list[0],{chatList: data.list[1]}));
 						}
@@ -93,7 +94,7 @@ export default{
 							loginKey: this.loginKey,
 							apply_id: item.apply_id
 						},callback:(data)=>{
-							this.setRidebarLoading(false);
+							this.setGlobalLoading(false);
 							this.setRecordList([]);
 							this.getRecord();
 							if(data.user){
@@ -109,7 +110,7 @@ export default{
 							loginKey: this.loginKey,
 							apply_id: item.apply_id
 						},callback:(data)=>{
-							this.setRidebarLoading(false);
+							this.setGlobalLoading(false);
 							this.setRecordList([]);
 							this.getRecord();
 							this.$message({type: 'success',message: '通过成功'});
@@ -122,7 +123,7 @@ export default{
 							loginKey: this.loginKey,
 							apply_id: item.apply_id
 						},callback:(data)=>{
-							this.setRidebarLoading(false);
+							this.setGlobalLoading(false);
 							this.setRecordList([]);
 							this.getRecord();
 							if(data.user){

@@ -178,6 +178,7 @@ export default{
 			this.setBarHeight();
 		},
 		getFriendList(){
+			this.isShowCtrl = false;
 			this.send({data: {
 				type: 'getFriendList',
 				loginKey: this.loginKey

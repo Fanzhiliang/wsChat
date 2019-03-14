@@ -119,7 +119,7 @@ export default{
 		goBottom(){
 			this.$refs.wrap.scrollTop = this.$refs.inner.clientHeight;
 			this.$nextTick(()=>{
-				this.isShowList = true;
+				setTimeout(()=>{this.isShowList = true;},500);
 			})
 		},
 		async sendImage(){//发送图片

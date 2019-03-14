@@ -10,11 +10,11 @@
 				</p>
 				<div class="panel-main">
 					<div class="input-row">
-						<input type="text" placeholder="账号或邮箱" v-model="obj.key">
+						<input type="text" id="key" name="key" placeholder="账号或邮箱" v-model="obj.key">
 						<span class="iconfont icon-offline" v-if="obj.key!=''" @click="obj.key=''"></span>
 					</div>
 					<div class="input-row">
-						<input type="password" placeholder="密码" v-model="obj.password">
+						<input type="password" id="password" name="password" placeholder="密码" v-model="obj.password">
 						<span class="iconfont icon-offline" v-if="obj.password!=''" @click="obj.password=''"></span>
 					</div>
 					<div class="but-row">
