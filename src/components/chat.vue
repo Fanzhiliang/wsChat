@@ -547,6 +547,7 @@ export default{
 	width: 20px;
 	height: 20px;
 	display: inline-block;
+	background-color: transparent!important;
 	vertical-align: middle;
 }
 

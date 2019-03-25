@@ -169,6 +169,12 @@ export default{
 	box-sizing: border-box;
 }
 
+@media screen and ( min-width: 1600px){
+	.index .inner{
+		padding-top: 200px;
+	}
+}
+
 .index .header{
 	width: 100%;
 	height: 75px;

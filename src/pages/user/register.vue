@@ -5,7 +5,7 @@
 			<div class="panel">
 				<h3 class="small-title">账号注册</h3>
 				<p class="tip center">已经有账号了，可以<router-link to="login">登录</router-link>。</p>
-				<div class="panel-main">
+				<div class="panel-main" @keyup.enter="submit">
 					<div class="input-row">
 						<input type="text" placeholder="邮箱" autocomplete="off" v-model="obj.email">
 						<span class="iconfont icon-offline" v-if="obj.email!=''" @click="obj.email=''"></span>

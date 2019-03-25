@@ -27,7 +27,7 @@ const that = {
 		commit('send',data);
 	},
 	setRecordList({commit},data){
-		data.sort(function(a,b){
+		data.sort(function(a,b){//a - b < 0：a排在b前面，a - b > 0：a排在b后面，a - b = 0：不变
 			return a.sort == b.sort ? b.write_date - a.write_date : b.sort - a.sort;
 		});
 		commit('setRecordList',data);

@@ -8,7 +8,7 @@
 					前往<router-link to="register">注册</router-link>
 					<router-link to="reset" class="reset">忘记密码</router-link>
 				</p>
-				<div class="panel-main">
+				<div class="panel-main" @keyup.enter="submit">
 					<div class="input-row">
 						<input type="text" id="key" name="key" placeholder="账号或邮箱" v-model="obj.key">
 						<span class="iconfont icon-offline" v-if="obj.key!=''" @click="obj.key=''"></span>

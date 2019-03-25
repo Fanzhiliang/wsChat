@@ -56,6 +56,7 @@ export default{
 		}),
 		clickItem(item){
 			this.setGlobalLoading(true);
+			setTimeout(()=>{this.setGlobalLoading(false);}, 5000);//避免loading一直存在
 			if(item.type=='friendMsg'||item.type=='groupMsg'){
 				if(item.type == 'friendMsg' && (this.friend['user_id'] != item.id || this.chatType=='group')){//防止重复获取
 					this.setShowBody(false);
@@ -85,6 +86,7 @@ export default{
 					}})
 				}else{
 					this.setShowBody('chat');
+					this.setGlobalLoading(false);
 				}
 			}else{
 				if(item.type == 'applyAddFriend'){//好友申请
@@ -340,5 +342,6 @@ export default{
 		margin: 0 1px;
 		vertical-align: text-top;
 		display: inline-block;
+		background-color: transparent!important;
 	}
 </style>

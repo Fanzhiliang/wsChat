@@ -100,13 +100,10 @@ export default{
 			this.headResult = '';
 			this.$refs.head.value = '';
 			this.group = Object.assign({},this.other);
+			this.isShowHead = false;
 		},
 		back(){
-			if(this.returnView !== ''){
-				this.setShowBody(this.returnView);
-			}else{
-				this.setShowBody('chat');
-			}
+			this.setShowBody(false);
 		},
 		insert(){
 			if(this.headResult){

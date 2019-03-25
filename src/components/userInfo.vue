@@ -127,6 +127,9 @@ export default{
 			this.headResult = '';
 			this.$refs.head.value = '';
 			this.user = Object.assign({},this.other);
+			this.isShowSex=false;
+			this.isShowArea=false;
+			this.isShowHead=false;
 		},
 		save(){
 			if(this.headResult){//有更换头像

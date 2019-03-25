@@ -175,6 +175,7 @@ export default{
 			this.headResult = '';
 			this.$refs.head.value = '';
 			this.group = Object.assign({},this.other);
+			this.isShowHead=false;
 		},
 		save(){
 			if(this.headResult){//有更换头像

@@ -75,6 +75,7 @@ export default {
 			ws.onmessage = (e)=>{
 				let data = JSON.parse(e.data);
 				console.log(JSON.parse(JSON.stringify(data)));
+				this.setRidebarLoading(false);//避免后端出错，loading一直出现的问题
 				if(data.err_code == 0){
 					//默认执行
 					switch (data.type) {
