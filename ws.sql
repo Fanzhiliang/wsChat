@@ -11,7 +11,7 @@
  Target Server Version : 50557
  File Encoding         : 65001
 
- Date: 25/03/2019 23:07:19
+ Date: 31/03/2019 22:52:00
 */
 
 SET NAMES utf8mb4;
@@ -30,7 +30,7 @@ CREATE TABLE `ws_apply`  (
   `content` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `write_date` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`apply_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 49 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 59 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for ws_carte
@@ -44,16 +44,18 @@ CREATE TABLE `ws_carte`  (
   `integral` int(11) NOT NULL DEFAULT 0,
   `last_date` int(11) NULL DEFAULT NULL,
   PRIMARY KEY (`carte_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 42 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of ws_carte
 -- ----------------------------
 INSERT INTO `ws_carte` VALUES (1, 2, 1, '脑残一号', 22, 1544259539);
-INSERT INTO `ws_carte` VALUES (2, 6, 1, '我是群主', 333, 1550244562);
+INSERT INTO `ws_carte` VALUES (2, 6, 1, '我是群主', 338, 1554040310);
 INSERT INTO `ws_carte` VALUES (3, 3, 1, 'cyh', 12, 1553501225);
-INSERT INTO `ws_carte` VALUES (28, 9, 1, 'xxl', 0, 1550151529);
 INSERT INTO `ws_carte` VALUES (30, 6, 4, 'fzl', 0, 1550241451);
+INSERT INTO `ws_carte` VALUES (35, 9, 1, 'xxl', 1, 1554040456);
+INSERT INTO `ws_carte` VALUES (39, 6, 7, '777', 0, 1554042601);
+INSERT INTO `ws_carte` VALUES (41, 9, 7, 'xxl', 1, 1554042961);
 
 -- ----------------------------
 -- Table structure for ws_code
@@ -255,13 +257,14 @@ CREATE TABLE `ws_group`  (
   `headPath` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   PRIMARY KEY (`group_id`) USING BTREE,
   UNIQUE INDEX `group_account`(`group_account`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of ws_group
 -- ----------------------------
 INSERT INTO `ws_group` VALUES (1, 431697, '弱智交流群', 6, '拥护党的纲领,遵守党的章程,履行党员义务,执行党的决定,严守党的纪律,保守党的秘密.', 'http://www.test3.com/wsChat/resources/1549181319.jpg');
 INSERT INTO `ws_group` VALUES (4, 429997, '牛魔王粉丝群', 6, '守护世上最好的牛牛~', 'http://www.test3.com/wsChat/resources/1550241424.jpg');
+INSERT INTO `ws_group` VALUES (7, 493597, '创建群聊测试2', 6, '一个无聊的群', 'http://ws.alcyh.com/resources/1554042565.jpg');
 
 -- ----------------------------
 -- Table structure for ws_groupMsg
@@ -275,7 +278,7 @@ CREATE TABLE `ws_groupMsg`  (
   `write_date` int(11) NOT NULL,
   `is_check` int(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`groupMsg_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 71 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 85 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of ws_groupMsg
@@ -350,6 +353,20 @@ INSERT INTO `ws_groupMsg` VALUES (67, 6, 1, '<br><br>？<p></p>', 1550243801, 0)
 INSERT INTO `ws_groupMsg` VALUES (68, 6, 1, '<p>士大夫撒地方</p>', 1550243819, 0);
 INSERT INTO `ws_groupMsg` VALUES (69, 6, 1, '<p>\n换行、\nctrl+Ente改成是否保存登录记录、背景、聊天记录后台分页\n\n</p>', 1550244562, 0);
 INSERT INTO `ws_groupMsg` VALUES (70, 3, 1, '<p>现在是2019年3月25日16点06分<img src=\"./static/img/fFace/fFace_22.png\" alt=\"face\" data-w-e=\"1\" style=\"background-color: rgb(255, 255, 255); width: 18px; height: 18px; margin: 0px 1px; vertical-align: middle;\"></p>', 1553501225, 0);
+INSERT INTO `ws_groupMsg` VALUES (71, 9, 1, '<p>我来啦</p>', 1554036569, 0);
+INSERT INTO `ws_groupMsg` VALUES (72, 6, 1, '<p>有人走了</p>', 1554037651, 0);
+INSERT INTO `ws_groupMsg` VALUES (73, 6, 1, '<p>他又回来了~</p>', 1554038215, 0);
+INSERT INTO `ws_groupMsg` VALUES (74, 9, 1, '<p>嘿嘿</p>', 1554038229, 0);
+INSERT INTO `ws_groupMsg` VALUES (75, 6, 1, '<p>？</p>', 1554038272, 0);
+INSERT INTO `ws_groupMsg` VALUES (76, 9, 1, '<p>1</p>', 1554038365, 0);
+INSERT INTO `ws_groupMsg` VALUES (77, 9, 1, '<p>我走了</p>', 1554038374, 0);
+INSERT INTO `ws_groupMsg` VALUES (78, 6, 1, '<p>骂他</p>', 1554038398, 0);
+INSERT INTO `ws_groupMsg` VALUES (79, 6, 1, '<p>7</p>', 1554040310, 0);
+INSERT INTO `ws_groupMsg` VALUES (80, 9, 1, '<p>777</p>', 1554040367, 0);
+INSERT INTO `ws_groupMsg` VALUES (81, 9, 1, '<p>加我好友</p>', 1554040456, 0);
+INSERT INTO `ws_groupMsg` VALUES (82, 6, 5, '<p>我来说第一句话</p>', 1554042003, 0);
+INSERT INTO `ws_groupMsg` VALUES (83, 9, 7, '<p>我来了</p>', 1554042746, 0);
+INSERT INTO `ws_groupMsg` VALUES (84, 9, 7, '<p>?</p>', 1554042961, 0);
 
 -- ----------------------------
 -- Table structure for ws_record
@@ -364,21 +381,24 @@ CREATE TABLE `ws_record`  (
   `is_check` int(1) NOT NULL DEFAULT 0,
   `sort` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`record_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 29 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of ws_record
 -- ----------------------------
 INSERT INTO `ws_record` VALUES (1, 2, 6, 'friendMsg', 91, 1, 0);
 INSERT INTO `ws_record` VALUES (2, 3, 6, 'friendMsg', 92, 0, 0);
-INSERT INTO `ws_record` VALUES (3, 2, 1, 'groupMsg', 70, 0, 0);
+INSERT INTO `ws_record` VALUES (3, 2, 1, 'groupMsg', 81, 0, 0);
 INSERT INTO `ws_record` VALUES (5, 6, 3, 'friendMsg', 92, 1, 0);
 INSERT INTO `ws_record` VALUES (7, 6, 2, 'friendMsg', 91, 1, 0);
-INSERT INTO `ws_record` VALUES (9, 3, 1, 'groupMsg', 70, 0, 0);
-INSERT INTO `ws_record` VALUES (10, 6, 1, 'groupMsg', 70, 1, 0);
-INSERT INTO `ws_record` VALUES (15, 9, 6, 'friendMsg', 81, 1, 0);
+INSERT INTO `ws_record` VALUES (9, 3, 1, 'groupMsg', 81, 0, 0);
+INSERT INTO `ws_record` VALUES (10, 6, 1, 'groupMsg', 81, 1, 0);
 INSERT INTO `ws_record` VALUES (16, 6, 9, 'friendMsg', 78, 1, 0);
-INSERT INTO `ws_record` VALUES (18, 9, 1, 'groupMsg', 70, 0, 0);
+INSERT INTO `ws_record` VALUES (22, 9, 1, 'groupMsg', 81, 1, 0);
+INSERT INTO `ws_record` VALUES (23, 6, 5, 'groupMsg', 82, 1, 0);
+INSERT INTO `ws_record` VALUES (24, 9, 5, 'groupMsg', 82, 1, 0);
+INSERT INTO `ws_record` VALUES (27, 6, 7, 'groupMsg', 84, 1, 0);
+INSERT INTO `ws_record` VALUES (28, 9, 7, 'groupMsg', 84, 1, 0);
 
 -- ----------------------------
 -- Table structure for ws_relation
@@ -392,7 +412,7 @@ CREATE TABLE `ws_relation`  (
   `is_ban` int(1) NOT NULL DEFAULT 0,
   `write_date` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`relation_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 41 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 43 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of ws_relation
@@ -403,8 +423,8 @@ INSERT INTO `ws_relation` VALUES (3, 2, 3, '', 1, 0);
 INSERT INTO `ws_relation` VALUES (4, 3, 2, '', 0, 0);
 INSERT INTO `ws_relation` VALUES (5, 3, 6, '', 0, 0);
 INSERT INTO `ws_relation` VALUES (6, 6, 3, '可望不可及', 0, 0);
-INSERT INTO `ws_relation` VALUES (39, 6, 9, '', 1, 1552129405);
-INSERT INTO `ws_relation` VALUES (40, 9, 6, '', 0, 0);
+INSERT INTO `ws_relation` VALUES (41, 6, 9, '', 0, 0);
+INSERT INTO `ws_relation` VALUES (42, 9, 6, '', 0, 0);
 
 -- ----------------------------
 -- Table structure for ws_user
@@ -437,9 +457,9 @@ CREATE TABLE `ws_user`  (
 -- ----------------------------
 -- Records of ws_user
 -- ----------------------------
-INSERT INTO `ws_user` VALUES (2, 546542312, 'xl', '47789.321', 0, '无', '明天会更好~', 'http://www.test3.com/wsChat/resources/1548657410.jpg', '', '', '2281588099@qq.com', '', '4c7b7d8107d742ada60fa6c454ea0280', 1, 0, 0, 0, NULL);
+INSERT INTO `ws_user` VALUES (2, 546542312, 'xl', '47789.321', 0, '无', '明天会更好~', 'http://www.test3.com/wsChat/resources/1548657410.jpg', '', '', '2281588099@qq.com', '', '2680e914881232499bae53611f61a3e0', 1, 0, 0, 0, NULL);
 INSERT INTO `ws_user` VALUES (3, 598432145, 'cyh', '47789.321', 0, '无', '拥护党的纲领,遵守党的章程,履行党员义务,执行党的决定,严守党的纪律,保守党的秘密.', 'http://www.test3.com/wsChat/resources/1548657487.jpg', '', '', 'cyh@qq.com', '', 'e9a22ca335a8f9b06d2a0da62b7d00fd', 1, 0, 0, 0, NULL);
-INSERT INTO `ws_user` VALUES (6, 529055786, 'fzl', '47789.321', 1, '男', '我也能找到吗？在仅有一次的生命里。', 'http://www.test3.com/wsChat/resources/1549178295.jpg', '广东省 广州市 南沙区', '[\"44\",\"4401\",\"440115\"]', '505911050@qq.com', '13128269543', '85e12e7839f864e4c62294d25e58abb0', 1, 0, 0, 22, 'http://ws.alcyh.com/resources/6_1551775042_0.jpg,http://ws.alcyh.com/resources/6_1551775186_0.png');
-INSERT INTO `ws_user` VALUES (9, 562314794, 'xxl', '47789.321', 0, '无', NULL, './static/img/user-head.png', NULL, NULL, 'xxl@qq.com', NULL, 'c8793caf6a330a66994b384d8cf5a455', 1, 0, 0, 0, 'http://ws.alcyh.com/resources/9_1552129076_0.jpg');
+INSERT INTO `ws_user` VALUES (6, 529055786, 'fzl', '47789.321', 1, '男', '我也能找到吗？在仅有一次的生命里。', 'http://www.test3.com/wsChat/resources/1549178295.jpg', '广东省 广州市 南沙区', '[\"44\",\"4401\",\"440115\"]', '505911050@qq.com', '13128269543', 'a58ce30f8544b980cd3aa1a5aae39279', 1, 0, 0, 22, 'http://ws.alcyh.com/resources/6_1551775042_0.jpg,http://ws.alcyh.com/resources/6_1551775186_0.png');
+INSERT INTO `ws_user` VALUES (9, 562314794, 'xxl', '47789.321', 0, '无', NULL, './static/img/user-head.png', NULL, NULL, 'xxl@qq.com', NULL, 'bf0bfe2023d0f1a6e6e3fd23667fa0ad', 1, 0, 0, 0, 'http://ws.alcyh.com/resources/9_1552129076_0.jpg');
 
 SET FOREIGN_KEY_CHECKS = 1;

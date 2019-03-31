@@ -54,10 +54,13 @@ export default{
 			setGroup: 'data/setGroup',
 			setUser: 'data/setUser'
 		}),
-		clickItem(item){
+		loading5Second(){
 			this.setGlobalLoading(true);
 			setTimeout(()=>{this.setGlobalLoading(false);}, 5000);//避免loading一直存在
+		},
+		clickItem(item){
 			if(item.type=='friendMsg'||item.type=='groupMsg'){
+				this.loading5Second();
 				if(item.type == 'friendMsg' && (this.friend['user_id'] != item.id || this.chatType=='group')){//防止重复获取
 					this.setShowBody(false);
 					this.send({data: {
@@ -91,6 +94,7 @@ export default{
 			}else{
 				if(item.type == 'applyAddFriend'){//好友申请
 					this.$Tip.showTip(item.creater+'想加你为好友,确定通过申请吗?',{sure:()=>{
+						this.loading5Second();
 						this.send({data:{
 							type: 'passAddFriend',
 							loginKey: this.loginKey,
@@ -107,6 +111,7 @@ export default{
 					}})
 				}else if(item.type == 'applyJoinGroup'){//申请入群
 					this.$Tip.showTip(item.creater+item.name+',确定通过申请吗?',{sure:()=>{
+						this.loading5Second();
 						this.send({data:{
 							type: 'passJoinGroup',
 							loginKey: this.loginKey,
@@ -120,6 +125,7 @@ export default{
 					}})
 				}else if(item.type == 'applyAddMember'){//邀请进群
 					this.$Tip.showTip('确定接受邀请吗?',{sure:()=>{
+						this.loading5Second();
 						this.send({data:{
 							type: 'passAddMember',
 							loginKey: this.loginKey,

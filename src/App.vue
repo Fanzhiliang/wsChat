@@ -70,8 +70,8 @@ export default {
   	},
 	created(){
 		if('WebSocket' in window){
-			let ws = new WebSocket('ws://127.0.0.1:8086');
-			// let ws = new WebSocket('ws://120.78.128.4:443');
+			// let ws = new WebSocket('ws://127.0.0.1:8086');
+			let ws = new WebSocket('ws://120.78.128.4:443');
 			ws.onmessage = (e)=>{
 				let data = JSON.parse(e.data);
 				console.log(JSON.parse(JSON.stringify(data)));

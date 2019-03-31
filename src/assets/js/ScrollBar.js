@@ -44,6 +44,30 @@ export default function(wrap,inner,bar,bias){
 		wrap.removeEventListener('scroll',scrollHandler);
 		window.removeEventListener('resize',setBarHeight);
 	}
+
+	//拖拉事件
+	var ableMove = false,
+		dist = 0,
+		totalDist = 0,
+		startMove = function(e){
+			ableMove = true;
+			dist = e.clientY;
+		},
+		endMove = function(){
+			ableMove = false;
+			dist = 0;
+		}
+
+	bar.addEventListener('mousedown',startMove);
+	document.addEventListener('mouseup',endMove);
+	document.addEventListener('mousemove',function(e){
+		if(ableMove){
+			var temp = e.clientY - dist;//移动的距离
+			totalDist += temp;
+			wrap.scrollTop = totalDist*inner.clientHeight/wrap.clientHeight;
+			dist = e.clientY;
+		}
+	})
 	
 	this.setBarHeight = setBarHeight;
 

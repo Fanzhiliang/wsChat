@@ -68,10 +68,10 @@
 				<div class="input-row" v-if="isMember">
 					<label for="nickame">群名片</label>
 					<p class="value" v-if="isEdit">
-						<input type="text" v-model="group.carte">
+						<input type="text" v-model="group.carte" :placeholder="stateUser.user_name">
 					</p>
 					<p class="value ellipsis" v-else>
-						<span>{{group.carte}}</span>
+						<span>{{group.carte||stateUser.user_name}}</span>
 					</p>
 				</div>
 
@@ -88,6 +88,7 @@
 				<button @click="join" class="save" v-if="!isMember">申请加入</button>
 				<button class="save" v-if="isMember" @click="setShowBody('chat')">聊天</button>
 				<button @click="exitGroup" class="reset" v-if="isMember&&!isLeader">退出</button>
+				<button @click="disband" class="reset" v-else>解散</button>
 			</div>
 			<div class="info-buts" v-else>
 				<button @click="save" class="save">保存</button>
@@ -146,7 +147,6 @@ export default{
 			send: 'data/send',
 			setGroup: 'data/setGroup',
 			setFriend: 'data/setFriend',
-			setReturnView: 'view/setReturnView',
 			addTypeKeys: 'data/addTypeKeys',
 			setGroupList: 'data/setGroupList',
 			setUser: 'data/setUser',
@@ -292,28 +292,43 @@ export default{
 				this.$message({type: 'success',message: '成功发送申请，请等待群主审核'});
 	        });
 		},
+		resetGetData(){
+			//重新获得消息列表
+			this.setRecordList(this.recordList.filter((item)=>{return item.group_id!=this.group.group_id}));
+			//重新获得群列表
+			this.setGroupList(this.groupList.filter((item)=>{return item.group_id != this.group.group_id}))
+			//重新获得个人信息
+			let tempUser = Object.assign({},this.stateUser);
+			tempUser.group_ids = tempUser.group_ids.split(',').filter((item)=>{
+				return item != this.group.group_id
+			}).join(',');
+			this.setUser(tempUser);
+			this.setGroup({});
+			this.setShowBody(false);
+		},
 		exitGroup(){//退出群聊
 			this.$Tip.showTip('确定退出该群吗？',{
 				sure:()=>{
-					
 					this.send({data: {
 						type: 'delGroupMember',
 						loginKey: this.loginKey,
 						member_id: this.stateUser.user_id,
 						group_id: this.group.group_id
 					},callback: (data)=>{
-						//重新获得消息列表
-						this.setRecordList(this.recordList.filter((item)=>{return item.group_id!=this.group.group_id}));
-						//重新获得群列表
-						this.setGroupList(this.groupList.filter((item)=>{return item.group_id != this.group.group_id}))
-						//重新获得个人信息
-						let tempUser = Object.assign({},this.stateUser);
-						tempUser.group_ids = tempUser.group_ids.split(',').filter((item)=>{
-							return item != this.group.group_id
-						}).join(',');
-						this.setUser(tempUser);
-						this.setGroup({});
-						this.setShowBody(false);
+						this.resetGetData();
+					}})
+				}
+			});
+		},
+		disband(){//解散群聊
+			this.$Tip.showTip('确定解散该群吗？',{
+				sure:()=>{
+					this.send({data: {
+						type: 'disband',
+						loginKey: this.loginKey,
+						group_id: this.group.group_id
+					},callback: (data)=>{
+						this.resetGetData();
 					}})
 				}
 			});

@@ -3,8 +3,8 @@
 		<div class="title">
 			<span class="iconfont icon-left" @click="left"></span>
 			{{obj.nickName||obj.user_name||obj.group_name}}
-			<span class="iconfont icon-group" v-if="isGroup" @click="setShowBody('groupInfo')"></span>
-			<span class="iconfont icon-user" v-else @click="setShowBody('friendInfo')"></span>
+			<span class="iconfont icon-group" v-if="isGroup" @click="setReturnView('chat');setShowBody('groupInfo')"></span>
+			<span class="iconfont icon-user" v-else @click="setReturnView('chat');setShowBody('friendInfo')"></span>
 		</div>
 		<div :class="['discuss-wrap',$isMobile?'mobile':'']" ref="wrap" @click="isOver=false">
 			<div class="discuss-inner" ref="inner" :style="{opacity:isShowList?1:0}">
@@ -181,7 +181,9 @@ export default{
 			}
 		},
 		left(){
-			if(this.returnView!==''){
+			if(this.returnView == 'chat'){//不可能返回后还是聊天
+				this.setShowBody(false);
+			}else if(this.returnView!==''){
 				this.setShowBody(this.returnView);
 			}else{
 				this.setShowBody(false);
@@ -311,8 +313,11 @@ export default{
 			}
 		})
 	},
+	activated(){
+		this.setReturnView(false);
+	},
 	deactivated(){
-		this.setReturnView('');
+		this.setReturnView(false);
 		this.setFriend({});
 		this.setGroup({});
 	}
